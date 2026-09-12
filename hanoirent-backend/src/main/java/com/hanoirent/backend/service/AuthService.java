@@ -19,6 +19,10 @@ public class AuthService {
             throw new RuntimeException("Email đã tồn tại trong hệ thống!");
         }
 
+        if(userRepository.existsByEmail(request.getPhone())) {
+            throw new RuntimeException("Số điện thoại đã tồn tại trong hệ thống!");
+        }
+
         User user = User.builder()
                 .email(request.getEmail())
                 .password(request.getPassword()) // Se ma hoa password sau khi config Security

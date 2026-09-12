@@ -12,11 +12,11 @@ import java.time.LocalDateTime;
 @Builder
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id //primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // id tự tăng
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true) // nullable = false: k đc để trống, unique = true: giá trị phải là duy nhất
     private String email;
 
     @Column(nullable = false)
@@ -25,6 +25,7 @@ public class User {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
+    @Column(unique = true)
     private String phone;
 
     private String avatar;
@@ -34,8 +35,8 @@ public class User {
     private Role role;
 
     @Column(name = "is_verified")
-    private Boolean isVerified = false; // Dung de xac minh danh tinh Chu tro
+    private Boolean isVerified = false; // xác minh danh tính chủ trọ
 
-    @Column(name = "created_at")
+    @Column(name = "created_at") // thời gian tạo tài khoản
     private LocalDateTime createdAt = LocalDateTime.now();
 }
