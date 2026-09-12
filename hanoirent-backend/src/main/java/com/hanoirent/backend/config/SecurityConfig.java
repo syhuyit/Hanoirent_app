@@ -14,11 +14,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Cho phep truy cap tự do API Auth
-                        .anyRequest().authenticated()
-                );
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**", "/api/posts/**").permitAll() // Thêm /api/posts/**
+                .anyRequest().authenticated()
+            );
 
         return http.build();
     }
