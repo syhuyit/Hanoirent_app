@@ -50,4 +50,18 @@ public class PostController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    // API Chủ trọ cập nhật trạng thái phòng (Đã cho thuê / Còn trống)
+    @PutMapping("/{id}/availability")
+    public ResponseEntity<?> updateAvailability(
+            @PathVariable Long id,
+            @RequestParam Long landlordId,
+            @RequestParam(required = false) Boolean isAvailable) {
+        try {
+            Post updatedPost = postService.updateRoomAvailability(id, landlordId, isAvailable);
+            return ResponseEntity.ok(updatedPost);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

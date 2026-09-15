@@ -1,11 +1,37 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { 
+  Building2, 
+  MapPin, 
+  DollarSign, 
+  Maximize2, 
+  FileText, 
+  CheckCircle2, 
+  AlertCircle,
+  ArrowLeft,
+  Sparkles
+} from "lucide-react";
 import API from "../api/axios";
+import Navbar from "../components/Navbar";
+
+const DISTRICTS = [
+  { code: "CAU_GIAY", name: "Cầu Giấy" },
+  { code: "DONG_DA", name: "Đống Đa" },
+  { code: "BA_DINH", name: "Ba Đình" },
+  { code: "HOAN_KIEM", name: "Hoàn Kiếm" },
+  { code: "TAY_HO", name: "Tây Hồ" },
+  { code: "THANH_XUAN", name: "Thanh Xuân" },
+  { code: "HAI_BA_TRUNG", name: "Hai Bà Trưng" },
+  { code: "HOANG_MAI", name: "Hoàng Mai" },
+  { code: "LONG_BIEN", name: "Long Biên" },
+  { code: "NAM_TU_LIEM", name: "Nam Từ Liêm" },
+  { code: "BAC_TU_LIEM", name: "Bắc Từ Liêm" },
+  { code: "HA_DONG", name: "Hà Đông" },
+];
 
 export default function CreatePost() {
   const navigate = useNavigate();
 
-  // Khởi tạo state user trực tiếp từ localStorage (Lazy initialization)
   const [user] = useState(() => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) return null;
@@ -22,32 +48,33 @@ export default function CreatePost() {
     price: "",
     area: "",
     address: "",
-    district: "CAU_GIAY", // Mặc định chọn Quận Cầu Giấy
+    district: "CAU_GIAY",
     ward: "",
   });
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Kiểm tra quyền truy cập của User khi vào trang
+  // Kiểm tra quyền truy cập của User (Chỉ Chủ trọ mới được đăng bài)
   useEffect(() => {
     if (!user) {
-      alert("Vui lòng đăng nhập trước khi đăng bài!");
       navigate("/login");
-    } else if (user.role !== "LANDLORD" && user.role !== "ADMIN") {
-      alert("Chỉ tài khoản Chủ trọ mới có quyền đăng bài!");
+    } else if (user.role !== "LANDLORD") {
       navigate("/");
     }
   }, [user, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (error) setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setLoading(true);
 
     if (!user) return;
 
@@ -56,174 +83,228 @@ export default function CreatePost() {
         ...formData,
         price: parseFloat(formData.price),
         area: parseFloat(formData.area),
-        landlordId: user.id, // Lấy ID của chủ trọ đang đăng nhập
+        landlordId: user.id,
       };
 
       await API.post("/posts", payload);
-      setSuccess("Đăng bài thành công! Bài viết đang chờ Admin duyệt.");
+      setSuccess("Đăng bài thành công! Bài viết đã được chuyển tới hàng chờ duyệt của Admin.");
       setTimeout(() => navigate("/"), 2000);
     } catch (err) {
       setError(
-        err.response?.data ||
-          "Đăng bài thất bại. Vui lòng kiểm tra lại thông tin!",
+        typeof err.response?.data === "string"
+          ? err.response.data
+          : "Đăng bài thất bại. Vui lòng kiểm tra lại thông tin!",
       );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6 flex justify-center">
-      <div className="w-full max-w-2xl rounded-2xl bg-white p-8 shadow-xl">
-        <h2 className="text-2xl font-bold text-blue-600 mb-6 text-center">
-          Đăng Bài Cho Thuê Phòng Trọ
-        </h2>
+    <div className="min-h-screen bg-[#090a0f] text-zinc-100">
+      <Navbar />
 
-        {error && (
-          <div className="mb-4 rounded-lg bg-red-100 p-3 text-sm text-red-600">
-            {error}
-          </div>
-        )}
-        {success && (
-          <div className="mb-4 rounded-lg bg-green-100 p-3 text-sm text-green-600">
-            {success}
-          </div>
-        )}
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-400 hover:text-white mb-6 transition"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Quay lại
+        </button>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Tiêu đề bài đăng
-            </label>
-            <input
-              type="text"
-              name="title"
-              required
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="VD: Cho thuê phòng khép kín giá rẻ Cầu Giấy"
-              className="mt-1 w-full rounded-lg border border-gray-300 p-2.5 focus:border-blue-500 focus:outline-none"
-            />
+        <div className="rounded-2xl bg-zinc-900/80 backdrop-blur-xl border border-zinc-800/80 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+          {/* Header Title */}
+          <div className="mb-8">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-2">
+              <Sparkles className="w-3.5 h-3.5" />
+              Dành cho Chủ trọ & Đối tác
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+              Đăng tin cho thuê phòng trọ
+            </h1>
+            <p className="text-sm text-zinc-400 mt-1.5">
+              Điền thông tin chi tiết căn phòng để Quản trị viên duyệt và hiển thị trên bảng tin
+            </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          {error && (
+            <div className="mb-6 rounded-xl bg-red-950/40 border border-red-500/30 p-4 flex items-start gap-3 text-red-300 text-sm">
+              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-6 rounded-xl bg-emerald-950/40 border border-emerald-500/30 p-4 flex items-start gap-3 text-emerald-300 text-sm">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+              <span>{success}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Mục 1: Tiêu đề */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Giá thuê (VNĐ/tháng)
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">
+                Tiêu đề bài đăng <span className="text-red-400">*</span>
               </label>
-              <input
-                type="number"
-                name="price"
-                required
-                value={formData.price}
+              <div className="relative">
+                <FileText className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  name="title"
+                  required
+                  value={formData.title}
+                  onChange={handleChange}
+                  placeholder="VD: Cho thuê phòng khép kín full đồ tại Cầu Giấy"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                />
+              </div>
+            </div>
+
+            {/* Mục 2: Giá & Diện tích */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">
+                  Giá thuê (VNĐ/tháng) <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
+                  <DollarSign className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="number"
+                    name="price"
+                    required
+                    min="100000"
+                    step="50000"
+                    value={formData.price}
+                    onChange={handleChange}
+                    placeholder="VD: 3500000"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">
+                  Diện tích (m²) <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
+                  <Maximize2 className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="number"
+                    name="area"
+                    required
+                    min="5"
+                    step="0.5"
+                    value={formData.area}
+                    onChange={handleChange}
+                    placeholder="VD: 25"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Mục 3: Vị trí */}
+            <div className="p-4 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-4">
+              <div className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-blue-400" />
+                Vị trí & Địa chỉ chi tiết
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-400 mb-1">
+                    Quận / Huyện
+                  </label>
+                  <select
+                    name="district"
+                    value={formData.district}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-100 text-sm focus:outline-none focus:border-blue-500 transition cursor-pointer"
+                  >
+                    {DISTRICTS.map((d) => (
+                      <option key={d.code} value={d.code}>
+                        Quận {d.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-zinc-400 mb-1">
+                    Phường / Xã <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="ward"
+                    required
+                    value={formData.ward}
+                    onChange={handleChange}
+                    placeholder="VD: Dịch Vọng Hậu"
+                    className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-blue-500 transition"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-400 mb-1">
+                  Số nhà, ngõ, tên đường cụ thể <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="address"
+                  required
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder="VD: Số 15 ngõ 68 Xuân Thủy"
+                  className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-blue-500 transition"
+                />
+              </div>
+            </div>
+
+            {/* Mục 4: Mô tả tiện ích */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">
+                Mô tả chi tiết phòng & Tiện ích
+              </label>
+              <textarea
+                name="description"
+                rows="4"
+                value={formData.description}
                 onChange={handleChange}
-                placeholder="VD: 3500000"
-                className="mt-1 w-full rounded-lg border border-gray-300 p-2.5 focus:border-blue-500 focus:outline-none"
+                placeholder="Mô tả về nội thất (giường, tủ, điều hòa, nóng lạnh), giờ giấc tự do, có chỗ sạc xe điện, nuôi thú cưng..."
+                className="w-full p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Diện tích (m²)
-              </label>
-              <input
-                type="number"
-                name="area"
-                required
-                value={formData.area}
-                onChange={handleChange}
-                placeholder="VD: 25"
-                className="mt-1 w-full rounded-lg border border-gray-300 p-2.5 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Quận / Huyện
-              </label>
-              <select
-                name="district"
-                value={formData.district}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-lg border border-gray-300 p-2.5 bg-white focus:border-blue-500 focus:outline-none"
+            {/* Action Buttons */}
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-800/80">
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold text-sm transition"
               >
-                <option value="CAU_GIAY">Cầu Giấy</option>
-                <option value="DONG_DA">Đống Đa</option>
-                <option value="BA_DINH">Ba Đình</option>
-                <option value="HOAN_KIEM">Hoàn Kiếm</option>
-                <option value="TAY_HO">Tây Hồ</option>
-                <option value="THANH_XUAN">Thanh Xuân</option>
-                <option value="HAI_BA_TRUNG">Hai Bà Trưng</option>
-                <option value="HOANG_MAI">Hoàng Mai</option>
-                <option value="LONG_BIEN">Long Biên</option>
-                <option value="NAM_TU_LIEM">Nam Từ Liêm</option>
-                <option value="BAC_TU_LIEM">Bắc Từ Liêm</option>
-                <option value="HA_DONG">Hà Đông</option>
-              </select>
+                Hủy bỏ
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all duration-200 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {loading ? (
+                  <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <Building2 className="w-4 h-4" />
+                    Gửi bài đăng duyệt
+                  </>
+                )}
+              </button>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Phường / Xã
-              </label>
-              <input
-                type="text"
-                name="ward"
-                required
-                value={formData.ward}
-                onChange={handleChange}
-                placeholder="VD: Dịch Vọng"
-                className="mt-1 w-full rounded-lg border border-gray-300 p-2.5 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Địa chỉ chi tiết
-            </label>
-            <input
-              type="text"
-              name="address"
-              required
-              value={formData.address}
-              onChange={handleChange}
-              placeholder="VD: Số 15 ngõ 68 Xuân Thủy"
-              className="mt-1 w-full rounded-lg border border-gray-300 p-2.5 focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Mô tả chi tiết phòng
-            </label>
-            <textarea
-              name="description"
-              rows="4"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Mô tả về tiện ích: Điều hòa, nóng lạnh, giờ giấc tự do, có chỗ để xe..."
-              className="mt-1 w-full rounded-lg border border-gray-300 p-2.5 focus:border-blue-500 focus:outline-none"
-            ></textarea>
-          </div>
-
-          <div className="flex gap-4 pt-2">
-            <button
-              type="button"
-              onClick={() => navigate("/")}
-              className="w-1/2 rounded-lg bg-gray-200 py-3 text-gray-700 font-semibold hover:bg-gray-300 transition"
-            >
-              Hủy
-            </button>
-            <button
-              type="submit"
-              className="w-1/2 rounded-lg bg-blue-600 py-3 text-white font-semibold hover:bg-blue-700 transition"
-            >
-              Đăng Bài
-            </button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
+      </main>
     </div>
   );
 }

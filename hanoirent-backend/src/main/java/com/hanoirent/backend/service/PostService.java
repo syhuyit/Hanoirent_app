@@ -40,9 +40,9 @@ public class PostService {
 
     public List<Post> getApprovedPosts(District district){
         if(district != null){
-            return postRepository.findByStatusAndRoomDistrict(PostStatus.APPROVED, district);
+            return postRepository.findByStatusAndRoomDistrictAndRoomIsAvailableTrue(PostStatus.APPROVED, district);
         }
-        return postRepository.findByStatus(PostStatus.APPROVED);
+        return postRepository.findByStatusAndRoomIsAvailableTrue(PostStatus.APPROVED);
     }
 
     // Lay danh sach bai dang cho Admin (PENDING hoặc tất cả)
@@ -60,5 +60,24 @@ public class PostService {
 
     public List<Post> getPostsByLandlord(Long landlordId){
         return postRepository.findByRoomLandlordId(landlordId);
+    }
+
+    // Chủ trọ cập nhật trạng thái phòng: Còn trống hoặc Đã cho thuê
+    public Post updateRoomAvailability(Long postId, Long landlordId, Boolean isAvailable) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài đăng!"));
+
+        if (post.getRoom().getLandlord() == null || !post.getRoom().getLandlord().getId().equals(landlordId)) {
+            throw new RuntimeException("Bạn không có quyền thay đổi trạng thái của phòng này!");
+        }
+
+        if (isAvailable != null) {
+            post.getRoom().setIsAvailable(isAvailable);
+        } else {
+            boolean current = Boolean.TRUE.equals(post.getRoom().getIsAvailable());
+            post.getRoom().setIsAvailable(!current);
+        }
+
+        return postRepository.save(post);
     }
 }

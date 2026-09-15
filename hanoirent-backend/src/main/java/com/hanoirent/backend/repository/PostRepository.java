@@ -9,11 +9,14 @@ import java.util.List;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    // Lấy các bài đăng đã duyệt để hiển thị trang chủ
+    // Lấy các bài đăng theo trạng thái (Dành cho Admin lấy danh sách PENDING)
     List<Post> findByStatus(PostStatus status);
 
-    // Lọc bài đăng theo Quận/Huyện và trạng thái đã duyệt
-    List<Post> findByStatusAndRoomDistrict(PostStatus status, District district);
+    // Lấy các bài đăng đã duyệt và còn trống để hiển thị trang chủ cho Người thuê
+    List<Post> findByStatusAndRoomIsAvailableTrue(PostStatus status);
+
+    // Lọc bài đăng theo Quận/Huyện, trạng thái đã duyệt và còn trống
+    List<Post> findByStatusAndRoomDistrictAndRoomIsAvailableTrue(PostStatus status, District district);
 
     // Lấy danh sách bài đăng của 1 chủ trọ cụ thể
     List<Post> findByRoomLandlordId(Long landlordId);
