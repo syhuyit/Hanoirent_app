@@ -45,6 +45,19 @@ public class PostService {
         return postRepository.findByStatus(PostStatus.APPROVED);
     }
 
+    // Lay danh sach bai dang cho Admin (PENDING hoặc tất cả)
+    public List<Post> getPendingPosts() {
+        return postRepository.findByStatus(PostStatus.PENDING);
+    }
+
+    // Admin duyệt hoặc từ chối bài đăng
+    public Post updatePostStatus(Long postId, PostStatus status) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài đăng!"));
+        post.setStatus(status);
+        return postRepository.save(post);
+    }
+
     public List<Post> getPostsByLandlord(Long landlordId){
         return postRepository.findByRoomLandlordId(landlordId);
     }
