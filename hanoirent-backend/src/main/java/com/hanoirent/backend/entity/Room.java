@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 
+import java.util.List;
+
 @Entity
 @Table(name = "rooms")
 @Data
@@ -38,6 +40,26 @@ public class Room {
 
     @Column(name = "is_available")
     private Boolean isAvailable = true; // Còn trống hay đã cho thuê
+
+    // --- CÁC THUỘC TÍNH CHI PHÍ MỞ RỘNG ---
+    private BigDecimal electricityPrice; // VNĐ/kWh
+    private BigDecimal waterPrice;       // VNĐ/m3 hoặc VNĐ/người
+    private BigDecimal internetPrice;    // VNĐ/tháng
+    private BigDecimal serviceFee;       // VNĐ/tháng
+
+    // --- CÁC THUỘC TÍNH TIỆN ÍCH & QUY ĐỊNH ---
+    private Integer parkingSlots;
+    private Boolean hasElectricVehicleCharging;
+    private Boolean allowPets;
+    private Boolean freeHours;
+
+    // --- DANH SÁCH ẢNH & VIDEO ---
+    @ElementCollection
+    @CollectionTable(name = "room_images", joinColumns = @JoinColumn(name = "room_id"))
+    @Column(name = "image_url")
+    private List<String> images;
+
+    private String videoUrl;
 
     @ManyToOne
     @JoinColumn(name = "landlord_id", nullable = false)
