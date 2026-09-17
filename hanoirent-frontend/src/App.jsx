@@ -1,8 +1,14 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import CreatePost from "./pages/CreatePost";
 import Home from "./pages/Home";
+import RoomDetail from "./pages/RoomDetail";
 import AdminDashboard from "./pages/AdminDashboard";
 import MyPosts from "./pages/MyPosts";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -11,8 +17,9 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Trang chủ công khai */}
+        {/* Các trang công khai */}
         <Route path="/" element={<Home />} />
+        <Route path="/posts/:id" element={<RoomDetail />} />
 
         {/* Luồng đăng nhập / đăng ký */}
         <Route path="/login" element={<Login />} />
@@ -38,7 +45,7 @@ export default function App() {
           }
         />
 
-        {/* Route Quản trị: BẢO VỆ CHẶT CHẼ, CHỈ CHO PHÉP ADMIN */}
+        {/* Route Quản trị: CHỈ CHO PHÉP ADMIN */}
         <Route
           path="/admin"
           element={

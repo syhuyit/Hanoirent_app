@@ -48,6 +48,12 @@ public class PostService {
         return postRepository.save(post);
     }
 
+    // Lấy chi tiết 1 bài đăng theo ID
+    public Post getPostById(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài đăng với mã ID: " + id));
+    }
+
     public List<Post> getApprovedPosts(District district){
         if(district != null){
             return postRepository.findByStatusAndRoomDistrictAndRoomIsAvailableTrue(PostStatus.APPROVED, district);

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
@@ -25,10 +26,23 @@ public class PostController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @GetMapping
     public ResponseEntity<List<Post>> getApprovedPosts(@RequestParam(required = false) District district){
         return ResponseEntity.ok(postService.getApprovedPosts(district));
     }
+
+    // [MỚI BỔ SUNG] API Lấy chi tiết 1 bài đăng theo ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getPostById(@PathVariable Long id) {
+        try {
+            Post post = postService.getPostById(id);
+            return ResponseEntity.ok(post);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @GetMapping("/landlord/{landlordId}")
     public ResponseEntity<List<Post>> getLandlordPost(@PathVariable Long landlordId){
         return ResponseEntity.ok(postService.getPostsByLandlord(landlordId));

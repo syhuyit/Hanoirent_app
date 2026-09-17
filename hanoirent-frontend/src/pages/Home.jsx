@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { 
-  MapPin, 
-  Maximize2, 
-  PhoneCall, 
-  Building2, 
-  Filter, 
-  Search, 
+import {
+  MapPin,
+  Maximize2,
+  PhoneCall,
+  Building2,
+  Filter,
+  Search,
   Sparkles,
-  CheckCircle2
+  CheckCircle2,
+  Eye,
 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../components/Navbar";
@@ -81,7 +82,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative overflow-hidden py-12 md:py-16 border-b border-zinc-800/60 bg-gradient-to-b from-[#0e1017] to-[#090a0f]">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider mb-4">
             <Sparkles className="w-3.5 h-3.5" />
@@ -96,7 +97,9 @@ export default function Home() {
           </h1>
 
           <p className="mt-4 text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            100% phòng trọ được xác thực thủ công bởi Quản trị viên. Thông tin giá cả, điện nước, địa chỉ minh bạch, liên hệ trực tiếp chủ nhà không qua trung gian.
+            100% phòng trọ được xác thực thủ công bởi Quản trị viên. Thông tin
+            giá cả, điện nước, địa chỉ minh bạch, liên hệ trực tiếp chủ nhà
+            không qua trung gian.
           </p>
 
           {/* District Filter Bar */}
@@ -158,16 +161,13 @@ export default function Home() {
             {[1, 2, 3, 4, 5, 6].map((n) => (
               <div
                 key={n}
-                className="h-80 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 animate-pulse p-6 flex flex-col justify-between"
+                className="h-96 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 animate-pulse flex flex-col justify-between overflow-hidden"
               >
-                <div className="space-y-3">
-                  <div className="w-24 h-6 bg-zinc-800 rounded-full" />
-                  <div className="w-3/4 h-6 bg-zinc-800 rounded-lg" />
-                  <div className="w-1/2 h-8 bg-zinc-800 rounded-lg" />
-                </div>
-                <div className="space-y-2">
-                  <div className="w-full h-4 bg-zinc-800 rounded" />
-                  <div className="w-2/3 h-4 bg-zinc-800 rounded" />
+                <div className="w-full h-48 bg-zinc-800" />
+                <div className="p-5 space-y-3">
+                  <div className="w-24 h-4 bg-zinc-800 rounded-full" />
+                  <div className="w-3/4 h-5 bg-zinc-800 rounded-lg" />
+                  <div className="w-1/2 h-6 bg-zinc-800 rounded-lg" />
                 </div>
               </div>
             ))}
@@ -181,7 +181,8 @@ export default function Home() {
               Chưa có phòng trọ phù hợp
             </h3>
             <p className="text-sm text-zinc-400 mb-6">
-              Hiện chưa có bài đăng nào được duyệt ở khu vực này. Bạn có thể chọn Quận khác hoặc quay lại sau!
+              Hiện chưa có bài đăng nào được duyệt ở khu vực này. Bạn có thể
+              chọn Quận khác hoặc quay lại sau!
             </p>
             {selectedDistrict && (
               <button
@@ -199,95 +200,123 @@ export default function Home() {
                 DISTRICT_NAMES[post.room?.district] ||
                 post.room?.district?.replace("_", " ");
 
+              const defaultImage =
+                "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=800&auto=format&fit=crop";
+              const coverImage =
+                post.room?.images && post.room.images.length > 0
+                  ? post.room.images[0]
+                  : defaultImage;
+
               return (
                 <div
                   key={post.id}
-                  className="group rounded-2xl bg-zinc-900/80 backdrop-blur-sm border border-zinc-800/80 hover:border-zinc-700 hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                  className="group rounded-2xl bg-zinc-900/80 backdrop-blur-sm border border-zinc-800/80 hover:border-zinc-700 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 flex flex-col justify-between overflow-hidden"
                 >
-                  <div className="p-6">
-                    {/* Tags row */}
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/25">
-                        <MapPin className="w-3 h-3" />
-                        Quận {districtName}
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
-                        <CheckCircle2 className="w-3 h-3" />
-                        Đã duyệt
-                      </span>
-                    </div>
-
-                    {/* Room Title */}
-                    <h3 className="text-lg font-bold text-zinc-100 group-hover:text-blue-400 transition-colors line-clamp-2 mb-2.5">
-                      {post.room?.title}
-                    </h3>
-
-                    {/* Pricing */}
-                    <div className="flex items-baseline gap-1.5 mb-4">
-                      <span className="text-2xl font-black text-amber-400 tracking-tight">
-                        {post.room?.price?.toLocaleString("vi-VN")}
-                      </span>
-                      <span className="text-xs text-zinc-400 font-medium">VNĐ/tháng</span>
-                    </div>
-
-                    {/* Details Box */}
-                    <div className="p-3.5 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-2 text-xs text-zinc-300 mb-4">
-                      <div className="flex items-center gap-2 text-zinc-400">
-                        <Maximize2 className="w-3.5 h-3.5 text-zinc-500" />
-                        <span>Diện tích:</span>
-                        <strong className="text-zinc-200">{post.room?.area} m²</strong>
-                      </div>
-
-                      <div className="flex items-start gap-2 text-zinc-400">
-                        <MapPin className="w-3.5 h-3.5 text-zinc-500 flex-shrink-0 mt-0.5" />
-                        <span className="line-clamp-1">
-                          {post.room?.address}, {post.room?.ward}
+                  <div>
+                    {/* Image Banner */}
+                    <Link
+                      to={`/posts/${post.id}`}
+                      className="block relative aspect-video overflow-hidden bg-zinc-950"
+                    >
+                      <img
+                        src={coverImage}
+                        alt={post.room?.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-3 left-3 flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-zinc-950/80 backdrop-blur-md text-blue-400 border border-blue-500/30">
+                          <MapPin className="w-3 h-3" />
+                          Quận {districtName}
                         </span>
                       </div>
-                    </div>
+                      <div className="absolute top-3 right-3">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400 bg-zinc-950/80 backdrop-blur-md border border-emerald-500/30 px-2.5 py-1 rounded-full">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Đã duyệt
+                        </span>
+                      </div>
+                    </Link>
 
-                    {/* Description preview */}
-                    {post.room?.description && (
-                      <p className="text-xs text-zinc-400 line-clamp-2 mb-4 leading-relaxed italic">
-                        "{post.room.description}"
-                      </p>
-                    )}
+                    {/* Content Section */}
+                    <div className="p-5">
+                      <Link to={`/posts/${post.id}`}>
+                        <h3 className="text-base font-bold text-zinc-100 group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
+                          {post.room?.title}
+                        </h3>
+                      </Link>
+
+                      {/* Pricing */}
+                      <div className="flex items-baseline gap-1.5 mb-3">
+                        <span className="text-xl font-black text-amber-400 tracking-tight">
+                          {post.room?.price?.toLocaleString("vi-VN")}
+                        </span>
+                        <span className="text-xs text-zinc-400 font-medium">
+                          VNĐ/tháng
+                        </span>
+                      </div>
+
+                      {/* Details Box */}
+                      <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-1.5 text-xs text-zinc-300 mb-3">
+                        <div className="flex items-center gap-2 text-zinc-400">
+                          <Maximize2 className="w-3.5 h-3.5 text-zinc-500" />
+                          <span>Diện tích:</span>
+                          <strong className="text-zinc-200">
+                            {post.room?.area} m²
+                          </strong>
+                        </div>
+
+                        <div className="flex items-start gap-2 text-zinc-400">
+                          <MapPin className="w-3.5 h-3.5 text-zinc-500 flex-shrink-0 mt-0.5" />
+                          <span className="line-clamp-1">
+                            {post.room?.address}, {post.room?.ward}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Landlord Contact Footer */}
-                  <div className="px-6 py-4 border-t border-zinc-800/80 bg-zinc-950/40 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-300 flex-shrink-0">
-                        {post.room?.landlord?.fullName?.charAt(0).toUpperCase() || "C"}
+                  {/* Landlord Contact Footer & Action Button */}
+                  <div className="px-5 py-3 border-t border-zinc-800/80 bg-zinc-950/40 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-300 flex-shrink-0">
+                        {post.room?.landlord?.fullName
+                          ?.charAt(0)
+                          .toUpperCase() || "C"}
                       </div>
                       <div className="min-w-0">
                         <p className="text-xs font-semibold text-zinc-200 truncate">
                           {post.room?.landlord?.fullName || "Chủ trọ"}
                         </p>
-                        <p className="text-[11px] text-zinc-500 truncate">
-                          Xác thực chính chủ
-                        </p>
                       </div>
                     </div>
 
-                    {/* Nếu đây là bài của chính chủ đang xem -> KHÔNG hiển thị nút Gọi điện, hiển thị tag Phòng của bạn */}
-                    {user && user.id === post.room?.landlord?.id ? (
+                    <div className="flex items-center gap-2">
                       <Link
-                        to="/my-posts"
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-semibold transition"
+                        to={`/posts/${post.id}`}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 text-xs font-semibold transition"
                       >
-                        <Building2 className="w-3.5 h-3.5" />
-                        <span>Phòng của bạn</span>
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Chi tiết</span>
                       </Link>
-                    ) : post.room?.landlord?.phone ? (
-                      <a
-                        href={`tel:${post.room?.landlord?.phone}`}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/30 text-emerald-400 text-xs font-semibold transition group-hover:scale-105"
-                      >
-                        <PhoneCall className="w-3.5 h-3.5" />
-                        <span>Gọi điện</span>
-                      </a>
-                    ) : null}
+
+                      {user && user.id === post.room?.landlord?.id ? (
+                        <Link
+                          to="/my-posts"
+                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-semibold transition"
+                        >
+                          <Building2 className="w-3.5 h-3.5" />
+                        </Link>
+                      ) : post.room?.landlord?.phoneNumber ||
+                        post.room?.landlord?.phone ? (
+                        <a
+                          href={`tel:${post.room?.landlord?.phoneNumber || post.room?.landlord?.phone}`}
+                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/30 text-emerald-400 text-xs font-semibold transition"
+                          title="Gọi điện"
+                        >
+                          <PhoneCall className="w-3.5 h-3.5" />
+                        </a>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               );
