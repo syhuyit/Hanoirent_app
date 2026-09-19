@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import RoomDetail from "./pages/RoomDetail";
 import AdminDashboard from "./pages/AdminDashboard";
 import MyPosts from "./pages/MyPosts";
+import UpdatePost from "./pages/UpdatePost";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -51,6 +52,16 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["ADMIN"]}>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Route cập nhật bài đăng: Chỉ cho phép LANDLORD */}
+        <Route
+          path="/update-post/:id"
+          element={
+            <ProtectedRoute allowedRoles={["LANDLORD"]}>
+              <UpdatePost />
             </ProtectedRoute>
           }
         />

@@ -50,10 +50,11 @@ public class CreatePostRequest {
     // Tiện ích & quy định
     @Min(value = 0, message = "Số chỗ để xe không được âm")
     private Integer parkingSlots;
-
     private Boolean hasElectricVehicleCharging;
     private Boolean allowPets;
     private Boolean freeHours;
+    private Boolean airConditioner;
+    private Boolean waterHeater;
 
     // Mảng ảnh và video
     private List<String> images;

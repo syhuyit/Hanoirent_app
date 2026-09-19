@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { 
-  Building2, 
-  PlusCircle, 
-  MapPin, 
-  Maximize2, 
-  Clock, 
-  CheckCircle2, 
-  XCircle, 
+import {
+  Building2,
+  PlusCircle,
+  MapPin,
+  Maximize2,
+  Clock,
+  CheckCircle2,
+  XCircle,
   Home as HomeIcon,
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../components/Navbar";
@@ -86,7 +88,9 @@ export default function MyPosts() {
     const newStatus = !currentAvailable;
 
     try {
-      await API.put(`/posts/${postId}/availability?landlordId=${user.id}&isAvailable=${newStatus}`);
+      await API.put(
+        `/posts/${postId}/availability?landlordId=${user.id}&isAvailable=${newStatus}`,
+      );
       setMessage({
         text: newStatus
           ? "Đã mở lại phòng! Tin đăng sẽ hiển thị trở lại trên trang chủ cho người thuê."
@@ -106,10 +110,33 @@ export default function MyPosts() {
     }
   };
 
+  // Xóa bài đăng
+  const handleDelete = async (postId) => {
+    const confirmDelete = window.confirm(
+      "Bạn có chắc chắn muốn xóa bài đăng này không? Hành động này không thể hoàn tác!",
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await API.delete(`/posts/${postId}`);
+      setMessage({
+        text: "Xóa bài đăng thành công!",
+        type: "success",
+      });
+      await reloadMyPosts();
+      setTimeout(() => setMessage({ text: "", type: "" }), 4000);
+    } catch (err) {
+      console.error("Lỗi khi xóa bài đăng:", err);
+      alert("Xóa bài đăng thất bại!");
+    }
+  };
+
   // Thống kê nhanh
   const stats = {
     total: posts.length,
-    available: posts.filter((p) => p.room?.isAvailable && p.status === "APPROVED").length,
+    available: posts.filter(
+      (p) => p.room?.isAvailable && p.status === "APPROVED",
+    ).length,
     rented: posts.filter((p) => !p.room?.isAvailable).length,
     pending: posts.filter((p) => p.status === "PENDING").length,
   };
@@ -130,7 +157,8 @@ export default function MyPosts() {
               Quản lý danh sách phòng trọ của bạn
             </h1>
             <p className="text-sm text-zinc-400 mt-1">
-              Theo dõi tình trạng phê duyệt và chủ động đánh dấu phòng đã cho thuê để tránh bị làm phiền
+              Theo dõi tình trạng phê duyệt và chủ động đánh dấu phòng đã cho
+              thuê để tránh bị làm phiền
             </p>
           </div>
 
@@ -138,31 +166,44 @@ export default function MyPosts() {
             to="/create-post"
             className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg shadow-blue-500/25 transition-all duration-200 hover:scale-[1.02] self-start sm:self-auto"
           >
-            <PlusCircle className="w-4 h-4" />
-            + Đăng phòng mới
+            <PlusCircle className="w-4 h-4" />+ Đăng phòng mới
           </Link>
         </div>
 
         {/* Status Counters */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800">
-            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Tổng tin đã đăng</p>
+            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              Tổng tin đã đăng
+            </p>
             <p className="text-2xl font-black text-white mt-1">{stats.total}</p>
           </div>
 
           <div className="p-4 rounded-2xl bg-zinc-900/80 border border-emerald-500/20">
-            <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Đang mở cho thuê</p>
-            <p className="text-2xl font-black text-emerald-400 mt-1">{stats.available}</p>
+            <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+              Đang mở cho thuê
+            </p>
+            <p className="text-2xl font-black text-emerald-400 mt-1">
+              {stats.available}
+            </p>
           </div>
 
           <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-700/60">
-            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Trọ đã được thuê</p>
-            <p className="text-2xl font-black text-amber-400 mt-1">{stats.rented}</p>
+            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              Trọ đã được thuê
+            </p>
+            <p className="text-2xl font-black text-amber-400 mt-1">
+              {stats.rented}
+            </p>
           </div>
 
           <div className="p-4 rounded-2xl bg-zinc-900/80 border border-amber-500/20">
-            <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider">Đang chờ Admin duyệt</p>
-            <p className="text-2xl font-black text-amber-300 mt-1">{stats.pending}</p>
+            <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+              Đang chờ Admin duyệt
+            </p>
+            <p className="text-2xl font-black text-amber-300 mt-1">
+              {stats.pending}
+            </p>
           </div>
         </div>
 
@@ -203,7 +244,8 @@ export default function MyPosts() {
               Bạn chưa có bài đăng nào
             </h3>
             <p className="text-sm text-zinc-400 mb-6">
-              Hãy bắt đầu đăng tin căn phòng đầu tiên của bạn để tiếp cận hàng nghìn người thuê tại Hà Nội!
+              Hãy bắt đầu đăng tin căn phòng đầu tiên của bạn để tiếp cận hàng
+              nghìn người thuê tại Hà Nội!
             </p>
             <Link
               to="/create-post"
@@ -276,7 +318,9 @@ export default function MyPosts() {
                       <span className="text-2xl font-black text-amber-400 tracking-tight">
                         {post.room?.price?.toLocaleString("vi-VN")}
                       </span>
-                      <span className="text-xs text-zinc-400 font-medium">VNĐ/tháng</span>
+                      <span className="text-xs text-zinc-400 font-medium">
+                        VNĐ/tháng
+                      </span>
                     </div>
 
                     {/* Details */}
@@ -284,13 +328,16 @@ export default function MyPosts() {
                       <div className="flex items-center gap-2 text-zinc-400">
                         <Maximize2 className="w-3.5 h-3.5 text-zinc-500" />
                         <span>Diện tích:</span>
-                        <strong className="text-zinc-200">{post.room?.area} m²</strong>
+                        <strong className="text-zinc-200">
+                          {post.room?.area} m²
+                        </strong>
                       </div>
 
                       <div className="flex items-start gap-2 text-zinc-400">
                         <MapPin className="w-3.5 h-3.5 text-zinc-500 flex-shrink-0 mt-0.5" />
                         <span className="line-clamp-1">
-                          {post.room?.address}, {post.room?.ward}, {post.room?.district?.replace("_", " ")}
+                          {post.room?.address}, {post.room?.ward},{" "}
+                          {post.room?.district?.replace("_", " ")}
                         </span>
                       </div>
                     </div>
@@ -303,17 +350,36 @@ export default function MyPosts() {
                     )}
                   </div>
 
-                  {/* Actions Footer (NO CALL BUTTON HERE) */}
-                  <div className="px-6 py-4 border-t border-zinc-800/80 bg-zinc-950/40 flex items-center justify-between gap-3">
-                    <span className="text-xs text-zinc-500">
-                      Mã phòng: #{post.room?.id}
-                    </span>
+                  {/* Actions Footer */}
+                  <div className="px-5 py-3.5 border-t border-zinc-800/80 bg-zinc-950/40 flex flex-wrap items-center justify-between gap-2">
+                    {/* Nút Sửa & Nút Xóa */}
+                    <div className="flex items-center gap-1.5">
+                      <Link
+                        to={`/update-post/${post.id}`}
+                        title="Chỉnh sửa bài đăng"
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700 text-xs font-medium transition"
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Sửa</span>
+                      </Link>
+
+                      <button
+                        onClick={() => handleDelete(post.id)}
+                        title="Xóa bài đăng"
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-500/30 text-xs font-medium transition cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Xóa</span>
+                      </button>
+                    </div>
 
                     {/* Toggle button "Trọ đã được thuê" / "Mở lại phòng trống" */}
                     <button
-                      onClick={() => handleToggleAvailability(post.id, isAvailable)}
+                      onClick={() =>
+                        handleToggleAvailability(post.id, isAvailable)
+                      }
                       disabled={actionLoading === post.id}
-                      className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition cursor-pointer disabled:opacity-50 ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer disabled:opacity-50 ${
                         isAvailable
                           ? "bg-zinc-800 hover:bg-zinc-700 text-amber-300 border border-amber-500/30 shadow-sm"
                           : "bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30"
@@ -324,12 +390,12 @@ export default function MyPosts() {
                       ) : isAvailable ? (
                         <>
                           <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
-                          Đánh dấu "Đã cho thuê"
+                          <span>Đã cho thuê</span>
                         </>
                       ) : (
                         <>
                           <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                          Mở lại phòng trống
+                          <span>Mở lại phòng</span>
                         </>
                       )}
                     </button>

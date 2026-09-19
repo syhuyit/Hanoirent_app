@@ -7,6 +7,7 @@ import com.hanoirent.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +35,8 @@ public class PostService {
                 .hasElectricVehicleCharging(Boolean.TRUE.equals(request.getHasElectricVehicleCharging()))
                 .allowPets(Boolean.TRUE.equals(request.getAllowPets()))
                 .freeHours(Boolean.TRUE.equals(request.getFreeHours()))
+                .airConditioner(Boolean.TRUE.equals(request.getAirConditioner()))
+                .waterHeater(Boolean.TRUE.equals(request.getWaterHeater()))
                 .images(request.getImages() != null ? request.getImages() : List.of())
                 .videoUrl(request.getVideoUrl())
                 .isAvailable(true)
@@ -95,5 +98,60 @@ public class PostService {
         }
 
         return postRepository.save(post);
+    }
+
+    // Cập nhật thông tin bài đăng
+    // 1. Thêm annotation @Transactional để đảm bảo JPA tự động flush mọi thay đổi của Post và Room vào DB
+    @Transactional
+    public Post updatePost(Long postId, Long landlordId, CreatePostRequest request) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài đăng!"));
+
+        Room room = post.getRoom();
+        if (room == null || room.getLandlord() == null || !room.getLandlord().getId().equals(landlordId)) {
+            throw new RuntimeException("Bạn không có quyền chỉnh sửa bài đăng này!");
+        }
+
+        // 2. Cập nhật các thông tin của Room
+        if (request.getTitle() != null) room.setTitle(request.getTitle());
+        if (request.getDescription() != null) room.setDescription(request.getDescription());
+        if (request.getPrice() != null) room.setPrice(request.getPrice());
+        if (request.getArea() != null) room.setArea(request.getArea());
+        if (request.getAddress() != null) room.setAddress(request.getAddress());
+        if (request.getDistrict() != null) room.setDistrict(request.getDistrict());
+        if (request.getWard() != null) room.setWard(request.getWard());
+        if (request.getElectricityPrice() != null) room.setElectricityPrice(request.getElectricityPrice());
+        if (request.getWaterPrice() != null) room.setWaterPrice(request.getWaterPrice());
+        if (request.getInternetPrice() != null) room.setInternetPrice(request.getInternetPrice());
+        if (request.getServiceFee() != null) room.setServiceFee(request.getServiceFee());
+        if (request.getParkingSlots() != null) room.setParkingSlots(request.getParkingSlots());
+        if (request.getHasElectricVehicleCharging() != null) room.setHasElectricVehicleCharging(request.getHasElectricVehicleCharging());
+        if (request.getAllowPets() != null) room.setAllowPets(request.getAllowPets());
+        if (request.getFreeHours() != null) room.setFreeHours(request.getFreeHours());
+        if (request.getAirConditioner() != null) room.setAirConditioner(request.getAirConditioner());
+        if (request.getWaterHeater() != null) room.setWaterHeater(request.getWaterHeater());
+        if (request.getImages() != null) room.setImages(request.getImages());
+        if (request.getVideoUrl() != null) room.setVideoUrl(request.getVideoUrl());
+
+        // 3. Đổi trạng thái Post về PENDING
+        post.setStatus(PostStatus.PENDING);
+
+        // Gán lại quan hệ hai chiều để JPA chắc chắn nhận biết sự thay đổi
+        post.setRoom(room);
+
+        // 4. Lưu lại vào Database
+        return postRepository.save(post);
+    }
+
+    // Xóa bài đăng
+    public void deletePost(Long postId, Long landlordId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài đăng!"));
+
+        if (landlordId != null && (post.getRoom() == null || post.getRoom().getLandlord() == null || !post.getRoom().getLandlord().getId().equals(landlordId))) {
+            throw new RuntimeException("Bạn không có quyền xóa bài đăng này!");
+        }
+
+        postRepository.delete(post);
     }
 }

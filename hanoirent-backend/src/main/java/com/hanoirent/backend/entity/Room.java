@@ -52,6 +52,8 @@ public class Room {
     private Boolean hasElectricVehicleCharging;
     private Boolean allowPets;
     private Boolean freeHours;
+    private Boolean airConditioner;
+    private Boolean waterHeater;
 
     // --- DANH SÁCH ẢNH & VIDEO ---
     @ElementCollection

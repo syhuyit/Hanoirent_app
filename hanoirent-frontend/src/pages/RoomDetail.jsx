@@ -18,6 +18,8 @@ import {
   Clock,
   Sparkles,
   XCircle,
+  Wind,
+  Flame,
 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../components/Navbar";
@@ -325,6 +327,45 @@ export default function RoomDetail() {
                       ) : (
                         <span className="text-red-400 flex items-center gap-1">
                           <XCircle className="w-3.5 h-3.5" /> Không cho phép
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Điều hòa */}
+                <div className="flex items-center gap-3 p-3.5 rounded-xl bg-zinc-950/60 border border-zinc-800/80">
+                  <Wind className="w-5 h-5 text-sky-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-zinc-400">Điều hòa</p>
+                    <div className="flex items-center gap-1 text-xs font-bold">
+                      {room.airConditioner ? (
+                        <span className="text-emerald-400 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Có điều hòa
+                        </span>
+                      ) : (
+                        <span className="text-amber-400 flex items-center gap-1">
+                          Không có điều hòa
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bình nóng lạnh */}
+                <div className="flex items-center gap-3 p-3.5 rounded-xl bg-zinc-950/60 border border-zinc-800/80">
+                  <Flame className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-zinc-400">Bình nóng lạnh</p>
+                    <div className="flex items-center gap-1 text-xs font-bold">
+                      {room.waterHeater ? (
+                        <span className="text-emerald-400 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Có bình nóng
+                          lạnh
+                        </span>
+                      ) : (
+                        <span className="text-amber-400 flex items-center gap-1">
+                          Không có bình nóng lạnh
                         </span>
                       )}
                     </div>

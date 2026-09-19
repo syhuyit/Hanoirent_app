@@ -19,6 +19,8 @@ import {
   Clock,
   ImagePlus,
   X,
+  Wind,
+  Flame,
 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../components/Navbar";
@@ -69,6 +71,8 @@ export default function CreatePost() {
     hasElectricVehicleCharging: false,
     allowPets: false,
     freeHours: false,
+    airConditioner: false,
+    waterHeater: false,
   });
 
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -461,6 +465,29 @@ export default function CreatePost() {
                     />
                     <Clock className="w-4 h-4 text-emerald-400" /> Giờ giấc tự
                     do (không chung chủ)
+                  </label>
+
+                  <label className="flex items-center gap-2.5 cursor-pointer text-sm text-zinc-300 hover:text-white transition">
+                    <input
+                      type="checkbox"
+                      name="airConditioner"
+                      checked={formData.airConditioner}
+                      onChange={handleChange}
+                      className="w-4 h-4 rounded bg-zinc-900 border-zinc-700 text-blue-600 focus:ring-blue-500 focus:ring-offset-zinc-950 cursor-pointer"
+                    />
+                    <Wind className="w-4 h-4 text-sky-400" /> Có điều hòa
+                  </label>
+
+                  <label className="flex items-center gap-2.5 cursor-pointer text-sm text-zinc-300 hover:text-white transition">
+                    <input
+                      type="checkbox"
+                      name="waterHeater"
+                      checked={formData.waterHeater}
+                      onChange={handleChange}
+                      className="w-4 h-4 rounded bg-zinc-900 border-zinc-700 text-blue-600 focus:ring-blue-500 focus:ring-offset-zinc-950 cursor-pointer"
+                    />
+                    <Flame className="w-4 h-4 text-amber-500" /> Có bình nóng
+                    lạnh
                   </label>
                 </div>
               </div>

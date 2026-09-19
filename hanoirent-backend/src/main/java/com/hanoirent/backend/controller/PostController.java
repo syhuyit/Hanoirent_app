@@ -32,7 +32,7 @@ public class PostController {
         return ResponseEntity.ok(postService.getApprovedPosts(district));
     }
 
-    // [MỚI BỔ SUNG] API Lấy chi tiết 1 bài đăng theo ID
+    // API Lấy chi tiết 1 bài đăng theo ID
     @GetMapping("/{id}")
     public ResponseEntity<?> getPostById(@PathVariable Long id) {
         try {
@@ -74,6 +74,33 @@ public class PostController {
         try {
             Post updatedPost = postService.updateRoomAvailability(id, landlordId, isAvailable);
             return ResponseEntity.ok(updatedPost);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updatePost(
+            @PathVariable Long id,
+            @RequestParam Long landlordId,
+            @RequestBody CreatePostRequest request) { // Hoặc DTO chỉnh sửa tương ứng
+        try {
+            // Bạn hãy tạo hàm updatePost trong PostService để xử lý
+            Post updatedPost = postService.updatePost(id, landlordId, request);
+            return ResponseEntity.ok(updatedPost);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePost(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long landlordId) {
+        try {
+            // Bạn hãy tạo hàm deletePost trong PostService để xử lý
+            postService.deletePost(id, landlordId);
+            return ResponseEntity.ok("Xóa bài đăng thành công!");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
