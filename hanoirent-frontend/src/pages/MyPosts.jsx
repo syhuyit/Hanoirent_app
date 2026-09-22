@@ -13,6 +13,8 @@ import {
   AlertCircle,
   Pencil,
   Trash2,
+  Eye,
+  ImageIcon,
 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../components/Navbar";
@@ -118,7 +120,7 @@ export default function MyPosts() {
     if (!confirmDelete) return;
 
     try {
-      await API.delete(`/posts/${postId}`);
+      await API.delete(`/posts/${postId}?landlordId=${user.id}`);
       setMessage({
         text: "Xóa bài đăng thành công!",
         type: "success",
@@ -263,6 +265,8 @@ export default function MyPosts() {
               const isPending = post.status === "PENDING";
               const isRejected = post.status === "REJECTED";
 
+              const firstImg = post.room?.images && post.room.images.length > 0 ? post.room.images[0] : null;
+
               return (
                 <div
                   key={post.id}
@@ -272,50 +276,81 @@ export default function MyPosts() {
                       : "border-zinc-800 hover:border-zinc-700 hover:shadow-xl hover:shadow-blue-500/5"
                   }`}
                 >
-                  <div className="p-6">
-                    {/* Status badges row */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                      {/* Post Moderation Status */}
+                  {/* Thumbnail Image */}
+                  <div className="relative h-44 w-full bg-zinc-950 overflow-hidden border-b border-zinc-800/80 group">
+                    {firstImg ? (
+                      <img
+                        src={firstImg}
+                        alt={post.room?.title || "Phòng trọ"}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-zinc-600">
+                        <ImageIcon className="w-8 h-8 mb-1" />
+                        <span className="text-xs">Chưa có ảnh</span>
+                      </div>
+                    )}
+
+                    {/* Image count pill */}
+                    {post.room?.images?.length > 1 && (
+                      <div className="absolute bottom-2.5 right-2.5 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded-md text-[11px] text-zinc-300 font-medium">
+                        +{post.room.images.length - 1} ảnh
+                      </div>
+                    )}
+
+                    {/* Moderation Status Tag over image */}
+                    <div className="absolute top-2.5 left-2.5">
                       {isApproved && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-300 bg-emerald-950/80 backdrop-blur-md border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
                           <CheckCircle2 className="w-3 h-3" />
                           Đã duyệt
                         </span>
                       )}
                       {isPending && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-300 bg-amber-950/80 backdrop-blur-md border border-amber-500/30 px-2.5 py-0.5 rounded-full">
                           <Clock className="w-3 h-3" />
                           Chờ duyệt
                         </span>
                       )}
                       {isRejected && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-400 bg-red-500/10 border border-red-500/20 px-2.5 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-300 bg-red-950/80 backdrop-blur-md border border-red-500/30 px-2.5 py-0.5 rounded-full">
                           <XCircle className="w-3 h-3" />
                           Bị từ chối
                         </span>
                       )}
+                    </div>
 
-                      {/* Availability status tag */}
+                    {/* Availability Tag over image */}
+                    <div className="absolute top-2.5 right-2.5">
                       {isAvailable ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-300 bg-emerald-950/40 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-300 bg-emerald-950/80 backdrop-blur-md border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
                           <Sparkles className="w-3 h-3 text-emerald-400" />
                           Đang mở thuê
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-400 bg-zinc-800/80 border border-zinc-700 px-2.5 py-0.5 rounded-full">
-                          Đã cho thuê (Đã ẩn)
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-300 bg-zinc-950/80 backdrop-blur-md border border-zinc-700 px-2.5 py-0.5 rounded-full">
+                          Đã cho thuê
                         </span>
                       )}
                     </div>
+                  </div>
 
+                  <div className="p-5 flex-1 flex flex-col">
                     {/* Room title */}
-                    <h3 className="text-lg font-bold text-white mb-2 line-clamp-2">
+                    <Link
+                      to={`/room/${post.id}`}
+                      className="text-base font-bold text-white hover:text-blue-400 transition mb-2 line-clamp-2"
+                    >
                       {post.room?.title}
-                    </h3>
+                    </Link>
 
                     {/* Price */}
-                    <div className="flex items-baseline gap-1.5 mb-4">
-                      <span className="text-2xl font-black text-amber-400 tracking-tight">
+                    <div className="flex items-baseline gap-1.5 mb-3">
+                      <span className="text-xl font-black text-amber-400 tracking-tight">
                         {post.room?.price?.toLocaleString("vi-VN")}
                       </span>
                       <span className="text-xs text-zinc-400 font-medium">
@@ -352,8 +387,17 @@ export default function MyPosts() {
 
                   {/* Actions Footer */}
                   <div className="px-5 py-3.5 border-t border-zinc-800/80 bg-zinc-950/40 flex flex-wrap items-center justify-between gap-2">
-                    {/* Nút Sửa & Nút Xóa */}
+                    {/* Nút Xem, Sửa & Nút Xóa */}
                     <div className="flex items-center gap-1.5">
+                      <Link
+                        to={`/room/${post.id}`}
+                        title="Xem trang chi tiết"
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700 text-xs font-medium transition"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-blue-400" />
+                        <span>Xem</span>
+                      </Link>
+
                       <Link
                         to={`/update-post/${post.id}`}
                         title="Chỉnh sửa bài đăng"

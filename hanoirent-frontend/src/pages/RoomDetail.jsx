@@ -20,6 +20,8 @@ import {
   XCircle,
   Wind,
   Flame,
+  Wifi,
+  Receipt,
 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../components/Navbar";
@@ -402,6 +404,30 @@ export default function RoomDetail() {
                     {room.waterPrice
                       ? `${room.waterPrice.toLocaleString("vi-VN")} đ/m³`
                       : "Theo giá nhà nước"}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-950/60 border border-zinc-800/80">
+                  <div className="flex items-center gap-2.5 text-xs text-zinc-300">
+                    <Wifi className="w-4 h-4 text-indigo-400" />
+                    <span>Internet / Wifi</span>
+                  </div>
+                  <span className="text-xs font-bold text-zinc-100">
+                    {room.internetPrice
+                      ? `${room.internetPrice.toLocaleString("vi-VN")} đ/tháng`
+                      : "Miễn phí / Tự túc"}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-950/60 border border-zinc-800/80">
+                  <div className="flex items-center gap-2.5 text-xs text-zinc-300">
+                    <Receipt className="w-4 h-4 text-purple-400" />
+                    <span>Phí dịch vụ chung</span>
+                  </div>
+                  <span className="text-xs font-bold text-zinc-100">
+                    {room.serviceFee
+                      ? `${room.serviceFee.toLocaleString("vi-VN")} đ/tháng`
+                      : "Đã bao gồm"}
                   </span>
                 </div>
               </div>

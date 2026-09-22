@@ -56,10 +56,11 @@ public class Room {
     private Boolean waterHeater;
 
     // --- DANH SÁCH ẢNH & VIDEO ---
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "room_images", joinColumns = @JoinColumn(name = "room_id"))
     @Column(name = "image_url")
-    private List<String> images;
+    @Builder.Default
+    private List<String> images = new java.util.ArrayList<>();
 
     private String videoUrl;
 

@@ -37,7 +37,7 @@ public class PostService {
                 .freeHours(Boolean.TRUE.equals(request.getFreeHours()))
                 .airConditioner(Boolean.TRUE.equals(request.getAirConditioner()))
                 .waterHeater(Boolean.TRUE.equals(request.getWaterHeater()))
-                .images(request.getImages() != null ? request.getImages() : List.of())
+                .images(request.getImages() != null ? new java.util.ArrayList<>(request.getImages()) : new java.util.ArrayList<>())
                 .videoUrl(request.getVideoUrl())
                 .isAvailable(true)
                 .landlord(landlord)
@@ -130,7 +130,7 @@ public class PostService {
         if (request.getFreeHours() != null) room.setFreeHours(request.getFreeHours());
         if (request.getAirConditioner() != null) room.setAirConditioner(request.getAirConditioner());
         if (request.getWaterHeater() != null) room.setWaterHeater(request.getWaterHeater());
-        if (request.getImages() != null) room.setImages(request.getImages());
+        if (request.getImages() != null) room.setImages(new java.util.ArrayList<>(request.getImages()));
         if (request.getVideoUrl() != null) room.setVideoUrl(request.getVideoUrl());
 
         // 3. Đổi trạng thái Post về PENDING
@@ -148,7 +148,7 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bài đăng!"));
 
-        if (landlordId != null && (post.getRoom() == null || post.getRoom().getLandlord() == null || !post.getRoom().getLandlord().getId().equals(landlordId))) {
+        if (landlordId == null || post.getRoom() == null || post.getRoom().getLandlord() == null || !post.getRoom().getLandlord().getId().equals(landlordId)) {
             throw new RuntimeException("Bạn không có quyền xóa bài đăng này!");
         }
 

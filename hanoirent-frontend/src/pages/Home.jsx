@@ -10,6 +10,7 @@ import {
   Sparkles,
   CheckCircle2,
   Eye,
+  Camera,
 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../components/Navbar";
@@ -235,6 +236,14 @@ export default function Home() {
                           Đã duyệt
                         </span>
                       </div>
+                      {post.room?.images && post.room.images.length > 1 && (
+                        <div className="absolute bottom-3 right-3">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-white bg-zinc-950/80 backdrop-blur-md px-2 py-0.5 rounded-full border border-zinc-700/60">
+                            <Camera className="w-3 h-3" />
+                            {post.room.images.length} ảnh
+                          </span>
+                        </div>
+                      )}
                     </Link>
 
                     {/* Content Section */}
@@ -271,6 +280,30 @@ export default function Home() {
                             {post.room?.address}, {post.room?.ward}
                           </span>
                         </div>
+                      </div>
+
+                      {/* Quick Amenities Tags */}
+                      <div className="flex flex-wrap gap-1.5 mb-1">
+                        {post.room?.hasElectricVehicleCharging && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/20 font-medium">
+                            ⚡ Sạc xe điện
+                          </span>
+                        )}
+                        {post.room?.allowPets && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-pink-500/10 text-pink-300 border border-pink-500/20 font-medium">
+                            🐾 Nuôi pet
+                          </span>
+                        )}
+                        {post.room?.freeHours && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-medium">
+                            🕒 Tự do
+                          </span>
+                        )}
+                        {post.room?.parkingSlots > 0 && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-300 border border-blue-500/20 font-medium">
+                            🛵 Có chỗ xe
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

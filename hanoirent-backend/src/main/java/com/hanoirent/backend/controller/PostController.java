@@ -96,9 +96,8 @@ public class PostController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePost(
             @PathVariable Long id,
-            @RequestParam(required = false) Long landlordId) {
+            @RequestParam Long landlordId) {
         try {
-            // Bạn hãy tạo hàm deletePost trong PostService để xử lý
             postService.deletePost(id, landlordId);
             return ResponseEntity.ok("Xóa bài đăng thành công!");
         } catch (Exception e) {
