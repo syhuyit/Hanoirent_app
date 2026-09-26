@@ -1,12 +1,12 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { 
-  Building2, 
-  PlusCircle, 
-  ShieldCheck, 
-  LogOut, 
-  User as UserIcon, 
+import {
+  Building2,
+  PlusCircle,
+  ShieldCheck,
+  LogOut,
+  User as UserIcon,
   Sparkles,
-  Home as HomeIcon 
+  Home as HomeIcon,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -24,6 +24,7 @@ export default function Navbar() {
   }
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/login");
   };
@@ -66,7 +67,10 @@ export default function Navbar() {
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-black tracking-tight text-white flex items-center gap-1">
-                  Hanoi<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Rent</span>
+                  Hanoi
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+                    Rent
+                  </span>
                   <Sparkles className="w-3.5 h-3.5 text-amber-400 opacity-80" />
                 </span>
                 <span className="text-[10px] text-zinc-400 font-medium tracking-wider uppercase -mt-1">
@@ -138,7 +142,9 @@ export default function Navbar() {
                 <div className="flex items-center gap-3 pl-2 sm:border-l sm:border-zinc-800">
                   <div className="flex items-center gap-2.5">
                     <div className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-sm font-bold text-zinc-200 shadow-inner">
-                      {user.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
+                      {user.fullName
+                        ? user.fullName.charAt(0).toUpperCase()
+                        : "U"}
                     </div>
                     <div className="hidden lg:flex flex-col">
                       <span className="text-xs font-semibold text-zinc-200 line-clamp-1 max-w-[120px]">

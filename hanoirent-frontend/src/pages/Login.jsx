@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock, LogIn, AlertCircle, Sparkles, Building2 } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  LogIn,
+  AlertCircle,
+  Sparkles,
+  Building2,
+} from "lucide-react";
 import API from "../api/axios";
 
 export default function Login() {
@@ -44,12 +51,15 @@ export default function Login() {
     try {
       // 1. Gửi request đăng nhập lên Backend Spring Boot
       const response = await API.post("/auth/login", formData);
-      const user = response.data;
 
-      // 2. Lưu thông tin phiên đăng nhập vào localStorage
+      // 2. Bóc tách token và thông tin user từ AuthResponse
+      const { token, ...user } = response.data;
+
+      // 3. Lưu token cho Axios Interceptor & lưu user cho UI
+      localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // 3. ĐIỀU HƯỚNG CHUẨN THỰC TẾ DỰA TRÊN QUYỀN (ROLE-BASED REDIRECTION)
+      // 4. ĐIỀU HƯỚNG CHUẨN THỰC TẾ DỰA TRÊN QUYỀN (ROLE-BASED REDIRECTION)
       if (user.role === "ADMIN") {
         navigate("/admin", { replace: true });
       } else if (user.role === "LANDLORD") {
@@ -82,7 +92,10 @@ export default function Login() {
         </div>
         <div className="flex flex-col">
           <span className="text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
-            Hanoi<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Rent</span>
+            Hanoi
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+              Rent
+            </span>
             <Sparkles className="w-4 h-4 text-amber-400" />
           </span>
           <span className="text-[11px] text-zinc-400 tracking-wider uppercase font-medium">

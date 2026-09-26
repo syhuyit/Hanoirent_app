@@ -1,5 +1,6 @@
 package com.hanoirent.backend.controller;
 
+import com.hanoirent.backend.dto.AuthResponse;
 import com.hanoirent.backend.dto.LoginRequest;
 import com.hanoirent.backend.dto.RegisterRequest;
 import com.hanoirent.backend.entity.User;
@@ -29,8 +30,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
-            User user = authService.login(request);
-            return ResponseEntity.ok(user);
+            AuthResponse response = authService.login(request);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
