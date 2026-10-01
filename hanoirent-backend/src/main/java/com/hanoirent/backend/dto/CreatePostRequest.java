@@ -1,6 +1,7 @@
 package com.hanoirent.backend.dto;
 
 import com.hanoirent.backend.entity.District;
+import com.hanoirent.backend.entity.PropertyType;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -15,6 +16,8 @@ public class CreatePostRequest {
 
     private String description;
 
+    @NotNull(message = "Loại mô hình không được để trống")
+    private PropertyType propertyType;
     @NotNull(message = "Giá thuê không được để trống")
     @Positive(message = "Giá thuê phải lớn hơn 0")
     private BigDecimal price;

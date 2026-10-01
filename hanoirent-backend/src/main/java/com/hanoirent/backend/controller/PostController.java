@@ -1,11 +1,13 @@
 package com.hanoirent.backend.controller;
 
 import com.hanoirent.backend.dto.CreatePostRequest;
+import com.hanoirent.backend.dto.PostFilterRequest;
 import com.hanoirent.backend.entity.Post;
 import com.hanoirent.backend.entity.District;
 import com.hanoirent.backend.entity.PostStatus;
 import com.hanoirent.backend.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -16,6 +18,13 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class PostController {
     private final PostService postService;
+
+    // ENDPOINT TÌM KIẾM & LỌC NÂNG CAO
+    @GetMapping("/search")
+    public ResponseEntity<Page<Post>> searchPosts(@ModelAttribute PostFilterRequest filter) {
+        Page<Post> result = postService.searchPosts(filter);
+        return ResponseEntity.ok(result);
+    }
 
     @PostMapping
     public ResponseEntity<?> createPost(@RequestBody CreatePostRequest request){
@@ -83,9 +92,8 @@ public class PostController {
     public ResponseEntity<?> updatePost(
             @PathVariable Long id,
             @RequestParam Long landlordId,
-            @RequestBody CreatePostRequest request) { // Hoặc DTO chỉnh sửa tương ứng
+            @RequestBody CreatePostRequest request) {
         try {
-            // Bạn hãy tạo hàm updatePost trong PostService để xử lý
             Post updatedPost = postService.updatePost(id, landlordId, request);
             return ResponseEntity.ok(updatedPost);
         } catch (Exception e) {

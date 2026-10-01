@@ -23,7 +23,9 @@ public class Room {
 
     @Column(columnDefinition = "TEXT")
     private String description; // Mô tả chi tiết
-
+    @Enumerated(EnumType.STRING)
+    @Column(name = "property_type")
+    private PropertyType propertyType; // Loại mô hình cho thuê
     @Column(nullable = false)
     private BigDecimal price;   // Giá thuê (VNĐ/tháng)
 

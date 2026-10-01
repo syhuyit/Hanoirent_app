@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../components/Navbar";
+import { PROPERTY_TYPE_NAMES } from "../constants/roomConstants";
 
 export default function MyPosts() {
   const navigate = useNavigate();
@@ -340,6 +341,14 @@ export default function MyPosts() {
                   </div>
 
                   <div className="p-5 flex-1 flex flex-col">
+                    {/* Property type badge */}
+                    <div className="mb-2">
+                      <span className="text-[11px] font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-md inline-flex items-center gap-1">
+                        <HomeIcon className="w-3 h-3" />
+                        {PROPERTY_TYPE_NAMES[post.room?.propertyType] || "Phòng trọ"}
+                      </span>
+                    </div>
+
                     {/* Room title */}
                     <Link
                       to={`/room/${post.id}`}

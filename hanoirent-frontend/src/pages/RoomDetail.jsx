@@ -22,24 +22,11 @@ import {
   Flame,
   Wifi,
   Receipt,
+  Home as HomeIcon,
 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../components/Navbar";
-
-const DISTRICT_NAMES = {
-  CAU_GIAY: "Cầu Giấy",
-  DONG_DA: "Đống Đa",
-  BA_DINH: "Ba Đình",
-  HOAN_KIEM: "Hoàn Kiếm",
-  TAY_HO: "Tây Hồ",
-  THANH_XUAN: "Thanh Xuân",
-  HAI_BA_TRUNG: "Hai Bà Trưng",
-  HOANG_MAI: "Hoàng Mai",
-  LONG_BIEN: "Long Biên",
-  NAM_TU_LIEM: "Nam Từ Liêm",
-  BAC_TU_LIEM: "Bắc Từ Liêm",
-  HA_DONG: "Hà Đông",
-};
+import { PROPERTY_TYPE_NAMES, DISTRICT_NAMES } from "../constants/roomConstants";
 
 export default function RoomDetail() {
   const { id } = useParams();
@@ -165,6 +152,10 @@ export default function RoomDetail() {
         {/* Title and Badges */}
         <div className="mb-6 space-y-3">
           <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/25">
+              <HomeIcon className="w-3.5 h-3.5" />
+              {PROPERTY_TYPE_NAMES[room.propertyType] || "Phòng trọ"}
+            </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/25">
               <MapPin className="w-3.5 h-3.5" />
               Quận {districtName}

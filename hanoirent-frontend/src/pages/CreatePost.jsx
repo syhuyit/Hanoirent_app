@@ -24,21 +24,7 @@ import {
 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../components/Navbar";
-
-const DISTRICTS = [
-  { code: "CAU_GIAY", name: "Cầu Giấy" },
-  { code: "DONG_DA", name: "Đống Đa" },
-  { code: "BA_DINH", name: "Ba Đình" },
-  { code: "HOAN_KIEM", name: "Hoàn Kiếm" },
-  { code: "TAY_HO", name: "Tây Hồ" },
-  { code: "THANH_XUAN", name: "Thanh Xuân" },
-  { code: "HAI_BA_TRUNG", name: "Hai Bà Trưng" },
-  { code: "HOANG_MAI", name: "Hoàng Mai" },
-  { code: "LONG_BIEN", name: "Long Biên" },
-  { code: "NAM_TU_LIEM", name: "Nam Từ Liêm" },
-  { code: "BAC_TU_LIEM", name: "Bắc Từ Liêm" },
-  { code: "HA_DONG", name: "Hà Đông" },
-];
+import { PROPERTY_TYPES, DISTRICTS } from "../constants/roomConstants";
 
 export default function CreatePost() {
   const navigate = useNavigate();
@@ -56,6 +42,7 @@ export default function CreatePost() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    propertyType: "ROOM",
     price: "",
     area: "",
     address: "",
@@ -234,6 +221,31 @@ export default function CreatePost() {
                   placeholder="VD: Cho thuê phòng khép kín full đồ tại Cầu Giấy"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 />
+              </div>
+            </div>
+
+            {/* Loại mô hình cho thuê */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">
+                Loại mô hình cho thuê <span className="text-red-400">*</span>
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                {PROPERTY_TYPES.map((pt) => (
+                  <button
+                    key={pt.code}
+                    type="button"
+                    onClick={() =>
+                      setFormData({ ...formData, propertyType: pt.code })
+                    }
+                    className={`px-3 py-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                      formData.propertyType === pt.code
+                        ? "bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-500/20"
+                        : "bg-zinc-950/80 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                    }`}
+                  >
+                    <span>{pt.label}</span>
+                  </button>
+                ))}
               </div>
             </div>
 

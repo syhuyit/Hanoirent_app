@@ -4,11 +4,14 @@ import com.hanoirent.backend.entity.District;
 import com.hanoirent.backend.entity.Post;
 import com.hanoirent.backend.entity.PostStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificationExecutor<Post> {
+
     // Lấy các bài đăng theo trạng thái (Dành cho Admin lấy danh sách PENDING)
     List<Post> findByStatus(PostStatus status);
 

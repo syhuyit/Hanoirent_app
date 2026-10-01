@@ -1,19 +1,42 @@
 package com.hanoirent.backend.service;
 
 import com.hanoirent.backend.dto.CreatePostRequest;
+import com.hanoirent.backend.dto.PostFilterRequest;
 import com.hanoirent.backend.entity.*;
 import com.hanoirent.backend.repository.PostRepository;
 import com.hanoirent.backend.repository.UserRepository;
+import com.hanoirent.backend.specification.PostSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+
+    // BỘ LỌC TÌM KIẾM NÂNG CAO VỚI PHÂN TRANG
+    public Page<Post> searchPosts(PostFilterRequest filter) {
+        // Đảm bảo không bị null pointer ở trang và số lượng bản ghi
+        int page = (filter != null && filter.getPage() != null) ? filter.getPage() : 0;
+        int size = (filter != null && filter.getSize() != null) ? filter.getSize() : 10;
+
+        // Sắp xếp bài đăng mới nhất lên đầu (theo id giảm dần)
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        // Tạo dynamic specification
+        Specification<Post> spec = PostSpecification.filterPosts(filter);
+
+        return postRepository.findAll(spec, pageable);
+    }
 
     public Post createPost(CreatePostRequest request){
         User landlord = userRepository.findById(request.getLandlordId())
@@ -22,6 +45,7 @@ public class PostService {
         Room room = Room.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
+                .propertyType(request.getPropertyType())
                 .price(request.getPrice())
                 .area(request.getArea())
                 .address(request.getAddress())
@@ -64,7 +88,7 @@ public class PostService {
         return postRepository.findByStatusAndRoomIsAvailableTrue(PostStatus.APPROVED);
     }
 
-    // Lay danh sach bai dang cho Admin (PENDING hoặc tất cả)
+    // Lấy danh sách bài đăng cho Admin (PENDING hoặc tất cả)
     public List<Post> getPendingPosts() {
         return postRepository.findByStatus(PostStatus.PENDING);
     }
@@ -101,7 +125,6 @@ public class PostService {
     }
 
     // Cập nhật thông tin bài đăng
-    // 1. Thêm annotation @Transactional để đảm bảo JPA tự động flush mọi thay đổi của Post và Room vào DB
     @Transactional
     public Post updatePost(Long postId, Long landlordId, CreatePostRequest request) {
         Post post = postRepository.findById(postId)
@@ -112,9 +135,10 @@ public class PostService {
             throw new RuntimeException("Bạn không có quyền chỉnh sửa bài đăng này!");
         }
 
-        // 2. Cập nhật các thông tin của Room
+        // Cập nhật các thông tin của Room
         if (request.getTitle() != null) room.setTitle(request.getTitle());
         if (request.getDescription() != null) room.setDescription(request.getDescription());
+        if (request.getPropertyType() != null) room.setPropertyType(request.getPropertyType());
         if (request.getPrice() != null) room.setPrice(request.getPrice());
         if (request.getArea() != null) room.setArea(request.getArea());
         if (request.getAddress() != null) room.setAddress(request.getAddress());
@@ -133,13 +157,10 @@ public class PostService {
         if (request.getImages() != null) room.setImages(new java.util.ArrayList<>(request.getImages()));
         if (request.getVideoUrl() != null) room.setVideoUrl(request.getVideoUrl());
 
-        // 3. Đổi trạng thái Post về PENDING
+        // Đổi trạng thái Post về PENDING
         post.setStatus(PostStatus.PENDING);
 
-        // Gán lại quan hệ hai chiều để JPA chắc chắn nhận biết sự thay đổi
         post.setRoom(room);
-
-        // 4. Lưu lại vào Database
         return postRepository.save(post);
     }
 

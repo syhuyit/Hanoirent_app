@@ -9,11 +9,13 @@ import {
   User, 
   AlertCircle, 
   CheckCircle2, 
-  Phone, 
-  Mail 
+  Phone,
+  Mail,
+  Home as HomeIcon,
 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../components/Navbar";
+import { PROPERTY_TYPE_NAMES, DISTRICT_NAMES } from "../constants/roomConstants";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -186,13 +188,17 @@ export default function AdminDashboard() {
                 {/* Post details */}
                 <div className="space-y-3 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/30">
+                      <HomeIcon className="w-3 h-3" />
+                      {PROPERTY_TYPE_NAMES[post.room?.propertyType] || "Phòng trọ"}
+                    </span>
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
                       <Clock className="w-3 h-3" />
                       Chờ duyệt (PENDING)
                     </span>
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/30">
                       <MapPin className="w-3 h-3" />
-                      {post.room?.district?.replace("_", " ")}
+                      {DISTRICT_NAMES[post.room?.district] || post.room?.district?.replace("_", " ")}
                     </span>
                     <span className="text-xs text-zinc-500 ml-auto">
                       Mã bài: #{post.id}

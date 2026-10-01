@@ -20,6 +20,9 @@ public class Post {
     @JoinColumn(name = "room_id", referencedColumnName = "id")
     private Room room;          // Mối quan hệ 1-1 với Phòng trọ
 
+    private Double latitude; // vĩ độ
+    private Double longitude; // kinh độ
+    private String placeId;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PostStatus status = PostStatus.PENDING; // Mặc định bài mới đăng sẽ ở trạng thái PENDING
