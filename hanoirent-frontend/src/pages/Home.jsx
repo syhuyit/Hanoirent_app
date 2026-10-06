@@ -26,7 +26,6 @@ import {
   Flame,
   ChevronLeft,
   ChevronRight,
-  Home as HomeIcon,
 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../components/Navbar";
@@ -83,7 +82,8 @@ export default function Home() {
     if (filters.propertyType) count++;
     if (filters.district) count++;
     if (filters.ward?.trim()) count++;
-    if (filters.minPrice || filters.maxPrice || filters.priceRangeIndex > 0) count++;
+    if (filters.minPrice || filters.maxPrice || filters.priceRangeIndex > 0)
+      count++;
     if (filters.maxElectricityPrice) count++;
     if (filters.maxWaterPrice) count++;
     if (filters.maxInternetPrice) count++;
@@ -97,53 +97,65 @@ export default function Home() {
   }, [filters]);
 
   // Fetch posts from backend with search criteria
-  const fetchPosts = useCallback(async (pageToLoad = 0, currentFilters = filters) => {
-    setLoading(true);
-    try {
-      const params = {
-        page: pageToLoad,
-        size: 12,
-      };
+  const fetchPosts = useCallback(
+    async (pageToLoad = 0, currentFilters = filters) => {
+      setLoading(true);
+      try {
+        const params = {
+          page: pageToLoad,
+          size: 12,
+        };
 
-      if (currentFilters.propertyType) params.propertyType = currentFilters.propertyType;
-      if (currentFilters.district) params.district = currentFilters.district;
-      if (currentFilters.ward?.trim()) params.ward = currentFilters.ward.trim();
-      if (currentFilters.minPrice) params.minPrice = currentFilters.minPrice;
-      if (currentFilters.maxPrice) params.maxPrice = currentFilters.maxPrice;
-      if (currentFilters.maxElectricityPrice) params.maxElectricityPrice = currentFilters.maxElectricityPrice;
-      if (currentFilters.maxWaterPrice) params.maxWaterPrice = currentFilters.maxWaterPrice;
-      if (currentFilters.maxInternetPrice) params.maxInternetPrice = currentFilters.maxInternetPrice;
-      if (currentFilters.minParkingSlots && Number(currentFilters.minParkingSlots) > 0) {
-        params.minParkingSlots = currentFilters.minParkingSlots;
+        if (currentFilters.propertyType)
+          params.propertyType = currentFilters.propertyType;
+        if (currentFilters.district) params.district = currentFilters.district;
+        if (currentFilters.ward?.trim())
+          params.ward = currentFilters.ward.trim();
+        if (currentFilters.minPrice) params.minPrice = currentFilters.minPrice;
+        if (currentFilters.maxPrice) params.maxPrice = currentFilters.maxPrice;
+        if (currentFilters.maxElectricityPrice)
+          params.maxElectricityPrice = currentFilters.maxElectricityPrice;
+        if (currentFilters.maxWaterPrice)
+          params.maxWaterPrice = currentFilters.maxWaterPrice;
+        if (currentFilters.maxInternetPrice)
+          params.maxInternetPrice = currentFilters.maxInternetPrice;
+        if (
+          currentFilters.minParkingSlots &&
+          Number(currentFilters.minParkingSlots) > 0
+        ) {
+          params.minParkingSlots = currentFilters.minParkingSlots;
+        }
+        if (currentFilters.hasElectricVehicleCharging)
+          params.hasElectricVehicleCharging = true;
+        if (currentFilters.allowPets) params.allowPets = true;
+        if (currentFilters.freeHours) params.freeHours = true;
+        if (currentFilters.airConditioner) params.airConditioner = true;
+        if (currentFilters.waterHeater) params.waterHeater = true;
+
+        const res = await API.get("/posts/search", { params });
+
+        // Backend returns Page<Post>
+        if (res.data && Array.isArray(res.data.content)) {
+          setPosts(res.data.content);
+          setTotalPages(res.data.totalPages || 0);
+          setTotalElements(res.data.totalElements || 0);
+          setCurrentPage(res.data.number || 0);
+        } else if (Array.isArray(res.data)) {
+          // Fallback in case of raw list
+          setPosts(res.data);
+          setTotalPages(1);
+          setTotalElements(res.data.length);
+          setCurrentPage(0);
+        }
+      } catch (err) {
+        console.error("Lỗi khi tìm kiếm bài đăng:", err);
+        setPosts([]);
+      } finally {
+        setLoading(false);
       }
-      if (currentFilters.hasElectricVehicleCharging) params.hasElectricVehicleCharging = true;
-      if (currentFilters.allowPets) params.allowPets = true;
-      if (currentFilters.freeHours) params.freeHours = true;
-      if (currentFilters.airConditioner) params.airConditioner = true;
-      if (currentFilters.waterHeater) params.waterHeater = true;
-
-      const res = await API.get("/posts/search", { params });
-
-      // Backend returns Page<Post>
-      if (res.data && Array.isArray(res.data.content)) {
-        setPosts(res.data.content);
-        setTotalPages(res.data.totalPages || 0);
-        setTotalElements(res.data.totalElements || 0);
-        setCurrentPage(res.data.number || 0);
-      } else if (Array.isArray(res.data)) {
-        // Fallback in case of raw list
-        setPosts(res.data);
-        setTotalPages(1);
-        setTotalElements(res.data.length);
-        setCurrentPage(0);
-      }
-    } catch (err) {
-      console.error("Lỗi khi tìm kiếm bài đăng:", err);
-      setPosts([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [filters]);
+    },
+    [filters],
+  );
 
   // Load initially
   useEffect(() => {
@@ -251,8 +263,8 @@ export default function Home() {
             </h1>
 
             <p className="mt-3 text-sm text-zinc-400 max-w-2xl mx-auto">
-              Bộ lọc nâng cao theo khu vực, mô hình, khoảng giá và tiện ích thực tế
-              (sạc xe điện, nuôi thú cưng, giờ tự do, điều hòa).
+              Bộ lọc nâng cao theo khu vực, mô hình, khoảng giá và tiện ích thực
+              tế (sạc xe điện, nuôi thú cưng, giờ tự do, điều hòa).
             </p>
           </div>
 
@@ -278,7 +290,8 @@ export default function Home() {
                 onClick={() => {
                   const updated = {
                     ...filters,
-                    propertyType: filters.propertyType === type.code ? "" : type.code,
+                    propertyType:
+                      filters.propertyType === type.code ? "" : type.code,
                   };
                   setFilters(updated);
                   fetchPosts(0, updated);
@@ -700,7 +713,8 @@ export default function Home() {
 
               {filters.maxElectricityPrice && (
                 <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
-                  ⚡ Điện ≤ {Number(filters.maxElectricityPrice).toLocaleString()} đ
+                  ⚡ Điện ≤{" "}
+                  {Number(filters.maxElectricityPrice).toLocaleString()} đ
                   <button
                     type="button"
                     onClick={() => handleRemoveFilter("maxElectricityPrice")}
@@ -726,7 +740,8 @@ export default function Home() {
 
               {filters.maxInternetPrice && (
                 <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
-                  🌐 Internet ≤ {Number(filters.maxInternetPrice).toLocaleString()} đ
+                  🌐 Internet ≤{" "}
+                  {Number(filters.maxInternetPrice).toLocaleString()} đ
                   <button
                     type="button"
                     onClick={() => handleRemoveFilter("maxInternetPrice")}
@@ -737,25 +752,28 @@ export default function Home() {
                 </span>
               )}
 
-              {filters.minParkingSlots && Number(filters.minParkingSlots) > 0 && (
-                <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
-                  🛵 Xe ≥ {filters.minParkingSlots}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveFilter("minParkingSlots")}
-                    className="hover:text-white ml-0.5"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
+              {filters.minParkingSlots &&
+                Number(filters.minParkingSlots) > 0 && (
+                  <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
+                    🛵 Xe ≥ {filters.minParkingSlots}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFilter("minParkingSlots")}
+                      className="hover:text-white ml-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
 
               {filters.hasElectricVehicleCharging && (
                 <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30">
                   ⚡ Sạc xe điện
                   <button
                     type="button"
-                    onClick={() => handleRemoveFilter("hasElectricVehicleCharging")}
+                    onClick={() =>
+                      handleRemoveFilter("hasElectricVehicleCharging")
+                    }
                     className="hover:text-white ml-0.5"
                   >
                     <X className="w-3 h-3" />
@@ -830,7 +848,7 @@ export default function Home() {
       {/* Main Listing Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Results Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
+        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
           <div>
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <Building2 className="w-5 h-5 text-blue-400" />
@@ -853,297 +871,312 @@ export default function Home() {
                     {totalElements}
                   </strong>{" "}
                   bài đăng phù hợp
-                  {totalPages > 1 && ` (Trang ${currentPage + 1}/${totalPages})`}
+                  {totalPages > 1 &&
+                    ` (Trang ${currentPage + 1}/${totalPages})`}
                 </>
               )}
             </p>
           </div>
         </div>
 
-        {/* Feed Cards */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <div
-                key={n}
-                className="h-96 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 animate-pulse flex flex-col justify-between overflow-hidden"
-              >
-                <div className="w-full h-48 bg-zinc-800" />
-                <div className="p-5 space-y-3">
-                  <div className="w-24 h-4 bg-zinc-800 rounded-full" />
-                  <div className="w-3/4 h-5 bg-zinc-800 rounded-lg" />
-                  <div className="w-1/2 h-6 bg-zinc-800 rounded-lg" />
-                </div>
-              </div>
-            ))}
+        {/* Bố cục 3 cột: Trái (Để trống/Phát triển sau) - Giữa (Feed Bài Đăng) - Phải (Để trống/Phát triển sau) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Cột Trái (Sidebar Trái - 3 cột): Sau này làm Menu/Shortcuts */}
+          <div className="hidden lg:block lg:col-span-3">
+            {/* Để trống sẵn cho bạn phát triển sau */}
           </div>
-        ) : posts.length === 0 ? (
-          <div className="text-center py-20 bg-zinc-900/40 rounded-3xl border border-zinc-800/80 p-8 max-w-lg mx-auto">
-            <div className="w-16 h-16 rounded-2xl bg-zinc-800/80 border border-zinc-700 flex items-center justify-center text-zinc-500 mx-auto mb-4">
-              <Search className="w-8 h-8 text-zinc-400" />
-            </div>
-            <h3 className="text-lg font-bold text-white mb-1">
-              Chưa tìm thấy phòng phù hợp
-            </h3>
-            <p className="text-sm text-zinc-400 mb-6">
-              Không có bài đăng nào khớp với các tiêu chí tìm kiếm hiện tại. Bạn hãy thử mở rộng khoảng giá hoặc bỏ bớt các bộ lọc tiện ích!
-            </p>
-            {activeFilterCount > 0 && (
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition shadow-lg shadow-blue-500/20 cursor-pointer"
-              >
-                Đặt lại tất cả bộ lọc
-              </button>
+
+          {/* Cột Giữa (Main Feed - 6 cột): Chứa danh sách bài đăng 1 dòng 1 Card */}
+          <div className="lg:col-span-6 space-y-6">
+            {loading ? (
+              <div className="space-y-6">
+                {[1, 2, 3].map((n) => (
+                  <div
+                    key={n}
+                    className="h-96 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 animate-pulse flex flex-col justify-between overflow-hidden"
+                  >
+                    <div className="w-full h-56 bg-zinc-800" />
+                    <div className="p-5 space-y-3">
+                      <div className="w-24 h-4 bg-zinc-800 rounded-full" />
+                      <div className="w-3/4 h-5 bg-zinc-800 rounded-lg" />
+                      <div className="w-1/2 h-6 bg-zinc-800 rounded-lg" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : posts.length === 0 ? (
+              <div className="text-center py-16 bg-zinc-900/40 rounded-3xl border border-zinc-800/80 p-8">
+                <div className="w-16 h-16 rounded-2xl bg-zinc-800/80 border border-zinc-700 flex items-center justify-center text-zinc-500 mx-auto mb-4">
+                  <Search className="w-8 h-8 text-zinc-400" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-1">
+                  Chưa tìm thấy phòng phù hợp
+                </h3>
+                <p className="text-sm text-zinc-400 mb-6">
+                  Không có bài đăng nào khớp với các tiêu chí tìm kiếm hiện tại.
+                  Bạn hãy thử mở rộng khoảng giá hoặc bỏ bớt các bộ lọc tiện
+                  ích!
+                </p>
+                {activeFilterCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleResetFilters}
+                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition shadow-lg shadow-blue-500/20 cursor-pointer"
+                  >
+                    Đặt lại tất cả bộ lọc
+                  </button>
+                )}
+              </div>
+            ) : (
+              /* FEED BÀI ĐĂNG - 1 DÒNG 1 CARD */
+              <div className="flex flex-col gap-6">
+                {posts.map((post) => {
+                  const districtName =
+                    DISTRICT_NAMES[post.room?.district] ||
+                    post.room?.district?.replace("_", " ");
+
+                  const propertyTypeName =
+                    PROPERTY_TYPE_NAMES[post.room?.propertyType] || "Phòng trọ";
+
+                  const defaultImage =
+                    "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=800&auto=format&fit=crop";
+                  const coverImage =
+                    post.room?.images && post.room.images.length > 0
+                      ? post.room.images[0]
+                      : defaultImage;
+
+                  return (
+                    <div
+                      key={post.id}
+                      className="group rounded-2xl bg-zinc-900/80 backdrop-blur-sm border border-zinc-800/80 hover:border-zinc-700 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                    >
+                      <div>
+                        {/* Header bài đăng dạng MXH: Avatar chủ trọ + Tên + Thời gian/Loại hình */}
+                        <div className="p-4 border-b border-zinc-800/50 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-sm font-bold text-blue-400 flex-shrink-0">
+                              {post.room?.landlord?.fullName
+                                ?.charAt(0)
+                                .toUpperCase() || "C"}
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-semibold text-zinc-100 flex items-center gap-1.5">
+                                {post.room?.landlord?.fullName || "Chủ trọ"}
+                                <CheckCircle2 className="w-4 h-4 text-blue-400 fill-blue-400/20" />
+                              </h4>
+                              <p className="text-[11px] text-zinc-400 flex items-center gap-2">
+                                <span>{propertyTypeName}</span>
+                                <span>•</span>
+                                <span>Quận {districtName}</span>
+                              </p>
+                            </div>
+                          </div>
+
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-full">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Đã duyệt
+                          </span>
+                        </div>
+
+                        {/* Tiêu đề & Thông tin nhanh */}
+                        <div className="p-4 pb-3">
+                          <Link to={`/posts/${post.id}`}>
+                            <h3 className="text-base font-bold text-zinc-100 group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
+                              {post.room?.title}
+                            </h3>
+                          </Link>
+
+                          {/* Giá thuê nổi bật */}
+                          <div className="flex items-baseline gap-1.5 mb-3">
+                            <span className="text-2xl font-black text-amber-400 tracking-tight">
+                              {post.room?.price?.toLocaleString("vi-VN")}
+                            </span>
+                            <span className="text-xs text-zinc-400 font-medium">
+                              VNĐ/tháng
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Image Banner (Hình ảnh đăng dạng lớn chuẩn Social Feed) */}
+                        <Link
+                          to={`/posts/${post.id}`}
+                          className="block relative aspect-video overflow-hidden bg-zinc-950"
+                        >
+                          <img
+                            src={coverImage}
+                            alt={post.room?.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = defaultImage;
+                            }}
+                          />
+
+                          {/* Photo counter (Bottom Right) */}
+                          {post.room?.images && post.room.images.length > 1 && (
+                            <div className="absolute bottom-3 right-3">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-white bg-zinc-950/85 backdrop-blur-md px-2.5 py-1 rounded-full border border-zinc-700/60">
+                                <Camera className="w-3.5 h-3.5" />
+                                {post.room.images.length} ảnh
+                              </span>
+                            </div>
+                          )}
+                        </Link>
+
+                        {/* Content & Details Section */}
+                        <div className="p-4 space-y-3">
+                          {/* Details Box */}
+                          <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-1.5 text-xs text-zinc-300">
+                            <div className="flex items-center gap-2 text-zinc-400">
+                              <Maximize2 className="w-3.5 h-3.5 text-zinc-500" />
+                              <span>Diện tích:</span>
+                              <strong className="text-zinc-200">
+                                {post.room?.area} m²
+                              </strong>
+                            </div>
+
+                            <div className="flex items-start gap-2 text-zinc-400">
+                              <MapPin className="w-3.5 h-3.5 text-zinc-500 flex-shrink-0 mt-0.5" />
+                              <span className="line-clamp-1">
+                                {post.room?.address}
+                                {post.room?.ward ? `, ${post.room.ward}` : ""}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Quick Amenities Tags */}
+                          <div className="flex flex-wrap gap-1.5">
+                            {post.room?.airConditioner && (
+                              <span className="text-[11px] px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/20 font-medium">
+                                ❄️ Điều hòa
+                              </span>
+                            )}
+                            {post.room?.waterHeater && (
+                              <span className="text-[11px] px-2.5 py-1 rounded-lg bg-orange-500/10 text-orange-300 border border-orange-500/20 font-medium">
+                                🔥 Nóng lạnh
+                              </span>
+                            )}
+                            {post.room?.hasElectricVehicleCharging && (
+                              <span className="text-[11px] px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/20 font-medium">
+                                ⚡ Sạc xe điện
+                              </span>
+                            )}
+                            {post.room?.allowPets && (
+                              <span className="text-[11px] px-2.5 py-1 rounded-lg bg-pink-500/10 text-pink-300 border border-pink-500/20 font-medium">
+                                🐾 Nuôi pet
+                              </span>
+                            )}
+                            {post.room?.freeHours && (
+                              <span className="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-medium">
+                                🕒 Giờ tự do
+                              </span>
+                            )}
+                            {post.room?.parkingSlots > 0 && (
+                              <span className="text-[11px] px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300 border border-zinc-700 font-medium">
+                                🛵 Có chỗ xe ({post.room.parkingSlots})
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Landlord Contact Footer & Action Button */}
+                      <div className="px-4 py-3 border-t border-zinc-800/80 bg-zinc-950/40 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          {user && user.id === post.room?.landlord?.id ? (
+                            <Link
+                              to="/my-posts"
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-semibold transition"
+                            >
+                              <Building2 className="w-3.5 h-3.5" />
+                              <span>Quản lý</span>
+                            </Link>
+                          ) : post.room?.landlord?.phoneNumber ||
+                            post.room?.landlord?.phone ? (
+                            <a
+                              href={`tel:${post.room?.landlord?.phoneNumber || post.room?.landlord?.phone}`}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/30 text-emerald-400 text-xs font-semibold transition"
+                            >
+                              <PhoneCall className="w-3.5 h-3.5" />
+                              <span>Gọi chủ trọ</span>
+                            </a>
+                          ) : null}
+                        </div>
+
+                        <Link
+                          to={`/posts/${post.id}`}
+                          className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow-md shadow-blue-500/20"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Xem chi tiết</span>
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Pagination Section */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex items-center justify-center gap-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 0}
+                  className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Trang trước</span>
+                </button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => {
+                    if (
+                      i === 0 ||
+                      i === totalPages - 1 ||
+                      (i >= currentPage - 1 && i <= currentPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => handlePageChange(i)}
+                          className={`w-9 h-9 rounded-xl text-xs font-bold transition cursor-pointer ${
+                            currentPage === i
+                              ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                              : "bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white"
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                      );
+                    } else if (i === currentPage - 2 || i === currentPage + 2) {
+                      return (
+                        <span key={i} className="px-1 text-zinc-600 text-xs">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages - 1}
+                  className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                >
+                  <span>Trang sau</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             )}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post) => {
-              const districtName =
-                DISTRICT_NAMES[post.room?.district] ||
-                post.room?.district?.replace("_", " ");
 
-              const propertyTypeName =
-                PROPERTY_TYPE_NAMES[post.room?.propertyType] || "Phòng trọ";
-
-              const defaultImage =
-                "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=800&auto=format&fit=crop";
-              const coverImage =
-                post.room?.images && post.room.images.length > 0
-                  ? post.room.images[0]
-                  : defaultImage;
-
-              return (
-                <div
-                  key={post.id}
-                  className="group rounded-2xl bg-zinc-900/80 backdrop-blur-sm border border-zinc-800/80 hover:border-zinc-700 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 flex flex-col justify-between overflow-hidden"
-                >
-                  <div>
-                    {/* Image Banner */}
-                    <Link
-                      to={`/room/${post.id}`}
-                      className="block relative aspect-video overflow-hidden bg-zinc-950"
-                    >
-                      <img
-                        src={coverImage}
-                        alt={post.room?.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = defaultImage;
-                        }}
-                      />
-                      
-                      {/* Property Type Badge (Top Left) */}
-                      <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-zinc-950/85 backdrop-blur-md text-blue-400 border border-blue-500/30">
-                          <HomeIcon className="w-3 h-3" />
-                          {propertyTypeName}
-                        </span>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-950/85 backdrop-blur-md text-zinc-300 border border-zinc-700/60">
-                          <MapPin className="w-3 h-3 text-zinc-400" />
-                          {districtName}
-                        </span>
-                      </div>
-
-                      {/* Moderation Status (Top Right) */}
-                      <div className="absolute top-3 right-3">
-                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400 bg-zinc-950/85 backdrop-blur-md border border-emerald-500/30 px-2.5 py-1 rounded-full">
-                          <CheckCircle2 className="w-3 h-3" />
-                          Đã duyệt
-                        </span>
-                      </div>
-
-                      {/* Photo counter (Bottom Right) */}
-                      {post.room?.images && post.room.images.length > 1 && (
-                        <div className="absolute bottom-3 right-3">
-                          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-white bg-zinc-950/85 backdrop-blur-md px-2 py-0.5 rounded-full border border-zinc-700/60">
-                            <Camera className="w-3 h-3" />
-                            {post.room.images.length} ảnh
-                          </span>
-                        </div>
-                      )}
-                    </Link>
-
-                    {/* Content Section */}
-                    <div className="p-5">
-                      <Link to={`/room/${post.id}`}>
-                        <h3 className="text-base font-bold text-zinc-100 group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
-                          {post.room?.title}
-                        </h3>
-                      </Link>
-
-                      {/* Pricing */}
-                      <div className="flex items-baseline gap-1.5 mb-3">
-                        <span className="text-xl font-black text-amber-400 tracking-tight">
-                          {post.room?.price?.toLocaleString("vi-VN")}
-                        </span>
-                        <span className="text-xs text-zinc-400 font-medium">
-                          VNĐ/tháng
-                        </span>
-                      </div>
-
-                      {/* Details Box */}
-                      <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-1.5 text-xs text-zinc-300 mb-3">
-                        <div className="flex items-center gap-2 text-zinc-400">
-                          <Maximize2 className="w-3.5 h-3.5 text-zinc-500" />
-                          <span>Diện tích:</span>
-                          <strong className="text-zinc-200">
-                            {post.room?.area} m²
-                          </strong>
-                        </div>
-
-                        <div className="flex items-start gap-2 text-zinc-400">
-                          <MapPin className="w-3.5 h-3.5 text-zinc-500 flex-shrink-0 mt-0.5" />
-                          <span className="line-clamp-1">
-                            {post.room?.address}
-                            {post.room?.ward ? `, ${post.room.ward}` : ""}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Quick Amenities Tags */}
-                      <div className="flex flex-wrap gap-1.5">
-                        {post.room?.airConditioner && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-300 border border-blue-500/20 font-medium">
-                            ❄️ Điều hòa
-                          </span>
-                        )}
-                        {post.room?.waterHeater && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-300 border border-orange-500/20 font-medium">
-                            🔥 Nóng lạnh
-                          </span>
-                        )}
-                        {post.room?.hasElectricVehicleCharging && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/20 font-medium">
-                            ⚡ Sạc xe điện
-                          </span>
-                        )}
-                        {post.room?.allowPets && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-pink-500/10 text-pink-300 border border-pink-500/20 font-medium">
-                            🐾 Nuôi pet
-                          </span>
-                        )}
-                        {post.room?.freeHours && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-medium">
-                            🕒 Giờ tự do
-                          </span>
-                        )}
-                        {post.room?.parkingSlots > 0 && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700 font-medium">
-                            🛵 Có chỗ xe ({post.room.parkingSlots})
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Landlord Contact Footer & Action Button */}
-                  <div className="px-5 py-3 border-t border-zinc-800/80 bg-zinc-950/40 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-300 flex-shrink-0">
-                        {post.room?.landlord?.fullName
-                          ?.charAt(0)
-                          .toUpperCase() || "C"}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-zinc-200 truncate">
-                          {post.room?.landlord?.fullName || "Chủ trọ"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Link
-                        to={`/room/${post.id}`}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 text-xs font-semibold transition"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>Chi tiết</span>
-                      </Link>
-
-                      {user && user.id === post.room?.landlord?.id ? (
-                        <Link
-                          to="/my-posts"
-                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-semibold transition"
-                          title="Quản lý phòng của bạn"
-                        >
-                          <Building2 className="w-3.5 h-3.5" />
-                        </Link>
-                      ) : post.room?.landlord?.phoneNumber ||
-                        post.room?.landlord?.phone ? (
-                        <a
-                          href={`tel:${post.room?.landlord?.phoneNumber || post.room?.landlord?.phone}`}
-                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/30 text-emerald-400 text-xs font-semibold transition"
-                          title="Gọi điện liên hệ"
-                        >
-                          <PhoneCall className="w-3.5 h-3.5" />
-                        </a>
-                      ) : null}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          {/* Cột Phải (Sidebar Phải - 3 cột): Sau này làm Gợi ý/Tiện ích thêm */}
+          <div className="hidden lg:block lg:col-span-3">
+            {/* Để trống sẵn cho bạn phát triển sau */}
           </div>
-        )}
-
-        {/* Pagination Section */}
-        {totalPages > 1 && (
-          <div className="mt-12 flex items-center justify-center gap-2">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 0}
-              className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              <span>Trang trước</span>
-            </button>
-
-            <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }, (_, i) => {
-                // Show first, last, current, and adjacent pages
-                if (
-                  i === 0 ||
-                  i === totalPages - 1 ||
-                  (i >= currentPage - 1 && i <= currentPage + 1)
-                ) {
-                  return (
-                    <button
-                      key={i}
-                      onClick={() => handlePageChange(i)}
-                      className={`w-9 h-9 rounded-xl text-xs font-bold transition ${
-                        currentPage === i
-                          ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-                          : "bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white"
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  );
-                } else if (i === currentPage - 2 || i === currentPage + 2) {
-                  return (
-                    <span key={i} className="px-1 text-zinc-600 text-xs">
-                      ...
-                    </span>
-                  );
-                }
-                return null;
-              })}
-            </div>
-
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages - 1}
-              className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition"
-            >
-              <span>Trang sau</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+        </div>
       </main>
     </div>
   );
