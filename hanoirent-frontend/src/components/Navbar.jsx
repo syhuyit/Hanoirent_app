@@ -7,11 +7,14 @@ import {
   User as UserIcon,
   Sparkles,
   Home as HomeIcon,
+  MessageCircle,
 } from "lucide-react";
+import { useChat } from "../context/useChat";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { unreadCount } = useChat();
 
   const storedUser = localStorage.getItem("user");
   let user = null;
@@ -127,6 +130,24 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             {user ? (
               <>
+                {/* Chat Icon Button with real-time red unread badge */}
+                <Link
+                  to="/chat"
+                  className={`relative p-2 rounded-xl transition border ${
+                    location.pathname === "/chat"
+                      ? "bg-blue-600/20 text-blue-400 border-blue-500/40"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/80 border-zinc-800/60"
+                  }`}
+                  title="Tin nhắn & Trò chuyện"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full shadow-lg border-2 border-[#090a0f] animate-pulse">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </Link>
+
                 {/* Create Post Button for Landlord only */}
                 {user.role === "LANDLORD" && (
                   <Link

@@ -1,6 +1,5 @@
 package com.hanoirent.backend.config;
 
-import com.cloudinary.Api;
 import com.hanoirent.backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -40,15 +39,16 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Mở cho Pre-flight OPTIONS
 
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll() // Chỉ GET bài đăng mới Public
                         .requestMatchers("/api/upload/**").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/api/post/**").hasAnyRole("LANDLORD", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/post/**").hasAnyRole("LANDLORD", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/post/**").hasAnyRole("LANDLORD", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/posts/**").hasAnyRole("LANDLORD", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/posts/**").hasAnyRole("LANDLORD", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/posts/**").hasAnyRole("LANDLORD", "ADMIN")
 
                         .anyRequest().authenticated()
                 );

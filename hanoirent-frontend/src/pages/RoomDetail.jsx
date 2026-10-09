@@ -23,6 +23,7 @@ import {
   Wifi,
   Receipt,
   Home as HomeIcon,
+  MessageCircle,
 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../components/Navbar";
@@ -35,6 +36,7 @@ export default function RoomDetail() {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [startingChat, setStartingChat] = useState(false);
 
   const [user] = useState(() => {
     const storedUser = localStorage.getItem("user");
@@ -123,6 +125,31 @@ export default function RoomDetail() {
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     alert("Đã sao chép liên kết bài đăng!");
+  };
+
+  const handleStartChat = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    if (!landlord?.id) {
+      alert("Không tìm thấy thông tin liên hệ của chủ trọ.");
+      return;
+    }
+    setStartingChat(true);
+    try {
+      const res = await API.post("/chat/rooms", { recipientId: landlord.id });
+      if (res.data?.id) {
+        navigate(`/chat?roomId=${res.data.id}`);
+      } else {
+        navigate(`/chat?recipientId=${landlord.id}`);
+      }
+    } catch (err) {
+      console.error("Lỗi khi mở phòng chat:", err);
+      navigate(`/chat?recipientId=${landlord.id}`);
+    } finally {
+      setStartingChat(false);
+    }
   };
 
   return (
@@ -468,10 +495,21 @@ export default function RoomDetail() {
                 </div>
               ) : (
                 <div className="space-y-3">
+                  <button
+                    onClick={handleStartChat}
+                    disabled={startingChat}
+                    className="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-blue-600/25 transition-all duration-200 hover:scale-[1.01] disabled:opacity-50"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>
+                      {startingChat ? "Đang kết nối..." : "Nhắn tin cho chủ trọ"}
+                    </span>
+                  </button>
+
                   {landlord.phoneNumber || landlord.phone ? (
                     <a
                       href={`tel:${landlord.phoneNumber || landlord.phone}`}
-                      className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition"
+                      className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 text-xs font-bold rounded-xl shadow-lg transition"
                     >
                       <PhoneCall className="w-4 h-4" />
                       <span>

@@ -107,21 +107,26 @@ backend/
 frontend/src/
 ├── api/
 │   └── axios.js                     # Cấu hình Axios BaseURL & gắn Bearer Token
+├── context/
+│   ├── ChatContextInstance.js       # React Context instance (chuẩn hóa Fast Refresh)
+│   ├── ChatContext.jsx              # Quản lý WebSocket STOMP, subscription & unread badge
+│   └── useChat.js                   # Custom Hook sử dụng trạng thái tin nhắn
 ├── components/
-│   ├── Navbar.jsx                   # Thanh điều hướng Dark Theme, nhận diện Role thông minh
-│   └── ProtectedRoute.jsx           # Bảo vệ các Route yêu cầu quyền (Admin, Landlord)
+│   ├── Navbar.jsx                   # Thanh điều hướng Dark Theme, Badge tin nhắn [3] đỏ rực
+│   └── ProtectedRoute.jsx           # Bảo vệ các Route yêu cầu quyền (Admin, Landlord, Chat)
 ├── constants/
 │   └── roomConstants.js             # Dữ liệu dùng chung: Danh sách Quận, Loại hình, Khoảng giá
 ├── pages/
 │   ├── AdminDashboard.jsx           # Giao diện duyệt bài chờ duyệt (PENDING) cho Admin
+│   ├── Chat.jsx                     # Giao diện nhắn tin Real-time 2 cột, danh sách chat, gửi nhận tức thì
 │   ├── CreatePost.jsx               # Form đăng bài trọ mới: chọn loại hình, tiện ích, upload ảnh
 │   ├── Home.jsx                     # Trang chủ: Bộ lọc tìm kiếm đa năng, tabs loại hình, phân trang
 │   ├── Login.jsx                    # Màn hình đăng nhập & điều hướng thông minh theo Role
 │   ├── MyPosts.jsx                  # Quản lý bài đăng của riêng Chủ trọ (Đã cho thuê / Mở lại / Sửa / Xóa)
 │   ├── Register.jsx                 # Màn hình đăng ký thành viên
-│   ├── RoomDetail.jsx               # Trang chi tiết phòng trọ: Album ảnh, bảng chi phí, hotline
+│   ├── RoomDetail.jsx               # Chi tiết phòng: Album ảnh, bảng giá dịch vụ, Nút nhắn tin cho Chủ trọ
 │   └── UpdatePost.jsx               # Form cập nhật thông tin phòng & quản lý album ảnh
-├── App.jsx                          # Cấu hình Router toàn ứng dụng
+├── App.jsx                          # Cấu hình Router toàn ứng dụng & ChatProvider
 └── main.jsx                         # Điểm khởi chạy React DOM
 ```
 
@@ -214,6 +219,14 @@ Trình duyệt sẽ mở ứng dụng tại địa chỉ: `http://localhost:5173
 | `GET` | `/api/posts/landlord/{id}` | Lấy danh sách bài đăng của Chủ trọ | Chính chủ Chủ trọ |
 | `GET` | `/api/posts/pending` | Lấy danh sách bài đăng chờ duyệt | ADMIN |
 | `PUT` | `/api/posts/{id}/status?status={STATUS}` | Phê duyệt hoặc từ chối bài đăng | ADMIN |
+| `POST` | `/api/chat/rooms` | Tạo hoặc lấy phòng chat giữa 2 user | Authenticated |
+| `GET` | `/api/chat/rooms` | Lấy danh sách cuộc hội thoại của user | Authenticated |
+| `GET` | `/api/chat/messages/{roomId}` | Lấy lịch sử tin nhắn & đánh dấu đã đọc | Thành viên phòng |
+| `GET` | `/api/chat/unread-count` | Lấy tổng số tin nhắn chưa đọc | Authenticated |
+| `WS` | `/ws` (SockJS/STOMP) | Endpoint kết nối WebSocket thời gian thực | Public handshake |
+| `PUB` | `/app/chat.sendMessage` | Gửi tin nhắn chat mới lên Server qua STOMP | Authenticated |
+| `SUB` | `/topic/room.{roomId}` | Nhận tin nhắn mới thời gian thực trong phòng | Authenticated |
+| `SUB` | `/topic/user.{userId}` | Nhận thông báo tin nhắn mới & đếm chưa đọc | Authenticated |
 
 ---
 *Dự án được bảo trì và phát triển bởi đội ngũ Hanoirent.*
