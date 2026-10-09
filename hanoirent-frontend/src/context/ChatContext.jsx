@@ -137,13 +137,15 @@ export function ChatProvider({ children }) {
 
   // Hàm gửi tin nhắn qua WebSocket STOMP
   const sendMessage = useCallback((chatRoomId, recipientId, content) => {
-    const user = currentUser || JSON.parse(localStorage.getItem("user") || "null");
+    const stored = localStorage.getItem("user");
+    const user = stored ? JSON.parse(stored) : null;
+
     if (!user) throw new Error("Chưa đăng nhập");
 
     const payload = {
       chatRoomId,
       senderId: user.id,
-      recipientId,
+      recipientId, // partnerId từ Chat.jsx truyền vào đây
       content,
     };
 
@@ -155,7 +157,7 @@ export function ChatProvider({ children }) {
     } else {
       console.warn("WebSocket chưa kết nối");
     }
-  }, [currentUser]);
+  }, []); // Xóa currentUser khỏi dependency array
 
   // Hàm đăng ký nhận tin nhắn của một phòng cụ thể (/topic/room.{roomId})
   const subscribeToRoom = useCallback((roomId, onMessageReceived) => {

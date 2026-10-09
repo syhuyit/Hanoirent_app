@@ -18,7 +18,13 @@ import { useChat } from "../context/useChat";
 export default function Chat() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { sendMessage, subscribeToRoom, setUnreadCount, fetchUnreadCount, onNewMessage } = useChat();
+  const {
+    sendMessage,
+    subscribeToRoom,
+    setUnreadCount,
+    fetchUnreadCount,
+    onNewMessage,
+  } = useChat();
 
   const [rooms, setRooms] = useState([]);
   const [activeRoom, setActiveRoom] = useState(null);
@@ -61,27 +67,30 @@ export default function Chat() {
   }, []);
 
   // Tải lịch sử tin nhắn của 1 phòng
-  const selectRoom = useCallback(async (room) => {
-    if (!room) return;
-    setActiveRoom(room);
-    setLoadingMessages(true);
+  const selectRoom = useCallback(
+    async (room) => {
+      if (!room) return;
+      setActiveRoom(room);
+      setLoadingMessages(true);
 
-    try {
-      const res = await API.get(`/chat/messages/${room.id}`);
-      setMessages(Array.isArray(res.data) ? res.data : []);
-      // Đã đọc tin nhắn trong phòng này -> Cập nhật lại unread count trên Navbar
-      fetchUnreadCount();
+      try {
+        const res = await API.get(`/chat/messages/${room.id}`);
+        setMessages(Array.isArray(res.data) ? res.data : []);
+        // Đã đọc tin nhắn trong phòng này -> Cập nhật lại unread count trên Navbar
+        fetchUnreadCount();
 
-      // Cập nhật lại unreadCount = 0 của phòng này trong danh sách
-      setRooms((prev) =>
-        prev.map((r) => (r.id === room.id ? { ...r, unreadCount: 0 } : r))
-      );
-    } catch (err) {
-      console.error("Lỗi tải tin nhắn:", err);
-    } finally {
-      setLoadingMessages(false);
-    }
-  }, [fetchUnreadCount]);
+        // Cập nhật lại unreadCount = 0 của phòng này trong danh sách
+        setRooms((prev) =>
+          prev.map((r) => (r.id === room.id ? { ...r, unreadCount: 0 } : r)),
+        );
+      } catch (err) {
+        console.error("Lỗi tải tin nhắn:", err);
+      } finally {
+        setLoadingMessages(false);
+      }
+    },
+    [fetchUnreadCount],
+  );
 
   // Khởi tạo và xử lý query param roomId hoặc recipientId
   useEffect(() => {
@@ -107,14 +116,17 @@ export default function Chat() {
           });
           const targetRoom = res.data;
           currentRoomList = await fetchRooms();
-          const found = currentRoomList.find((r) => r.id === targetRoom.id) || targetRoom;
+          const found =
+            currentRoomList.find((r) => r.id === targetRoom.id) || targetRoom;
           selectRoom(found);
         } catch (e) {
           console.error("Lỗi tạo phòng chat:", e);
         }
       } else if (targetRoomId) {
         // Mở phòng theo roomId
-        const found = currentRoomList.find((r) => String(r.id) === String(targetRoomId));
+        const found = currentRoomList.find(
+          (r) => String(r.id) === String(targetRoomId),
+        );
         if (found) {
           selectRoom(found);
         } else if (currentRoomList.length > 0) {
@@ -153,8 +165,8 @@ export default function Chat() {
                 lastMessage: newMsg.content,
                 lastMessageTime: newMsg.timestamp,
               }
-            : r
-        )
+            : r,
+        ),
       );
 
       // Nếu đang mở đúng phòng này thì coi như đã đọc
@@ -187,7 +199,7 @@ export default function Chat() {
             };
           }
           return r;
-        })
+        }),
       );
     });
 
@@ -214,7 +226,7 @@ export default function Chat() {
 
   // Lọc phòng theo từ khóa tìm kiếm
   const filteredRooms = rooms.filter((r) =>
-    (r.partnerName || "").toLowerCase().includes(searchQuery.toLowerCase())
+    (r.partnerName || "").toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -269,9 +281,12 @@ export default function Chat() {
               ) : filteredRooms.length === 0 ? (
                 <div className="p-8 text-center text-zinc-500 space-y-2">
                   <MessageCircle className="w-10 h-10 mx-auto text-zinc-600" />
-                  <p className="text-sm font-medium">Chưa có cuộc trò chuyện nào</p>
+                  <p className="text-sm font-medium">
+                    Chưa có cuộc trò chuyện nào
+                  </p>
                   <p className="text-xs text-zinc-500">
-                    Bấm &quot;Nhắn tin cho Chủ trọ&quot; ở chi tiết phòng để bắt đầu trò chuyện!
+                    Bấm &quot;Nhắn tin cho Chủ trọ&quot; ở chi tiết phòng để bắt
+                    đầu trò chuyện!
                   </p>
                 </div>
               ) : (
@@ -318,7 +333,9 @@ export default function Chat() {
                           </h4>
                           {room.lastMessageTime && (
                             <span className="text-[10px] text-zinc-500 whitespace-nowrap">
-                              {new Date(room.lastMessageTime).toLocaleTimeString("vi-VN", {
+                              {new Date(
+                                room.lastMessageTime,
+                              ).toLocaleTimeString("vi-VN", {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               })}
@@ -415,7 +432,8 @@ export default function Chat() {
                         Chưa có tin nhắn trong cuộc hội thoại này
                       </h4>
                       <p className="text-xs text-zinc-500 max-w-sm">
-                        Hãy gửi lời chào đầu tiên để trao đổi về phòng trọ, giá cả và lịch xem phòng!
+                        Hãy gửi lời chào đầu tiên để trao đổi về phòng trọ, giá
+                        cả và lịch xem phòng!
                       </p>
                     </div>
                   ) : (
@@ -446,20 +464,27 @@ export default function Chat() {
                                 : "bg-zinc-800/90 text-zinc-100 border border-zinc-700/80 rounded-bl-xs"
                             }`}
                           >
-                            <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                            <p className="whitespace-pre-wrap break-words">
+                              {msg.content}
+                            </p>
 
                             <div
                               className={`flex items-center gap-1.5 mt-1 text-[10px] font-medium ${
-                                isMe ? "text-blue-200 justify-end" : "text-zinc-400"
+                                isMe
+                                  ? "text-blue-200 justify-end"
+                                  : "text-zinc-400"
                               }`}
                             >
                               <Clock className="w-2.5 h-2.5 opacity-70" />
                               <span>
                                 {msg.timestamp
-                                  ? new Date(msg.timestamp).toLocaleTimeString("vi-VN", {
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })
+                                  ? new Date(msg.timestamp).toLocaleTimeString(
+                                      "vi-VN",
+                                      {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      },
+                                    )
                                   : "Vừa xong"}
                               </span>
                               {isMe && (
@@ -512,7 +537,8 @@ export default function Chat() {
                   Chọn một cuộc trò chuyện để bắt đầu
                 </h3>
                 <p className="text-xs text-zinc-400 max-w-sm">
-                  Trò chuyện trực tiếp, trao đổi hợp đồng thuê, thỏa thuận giá cả và hẹn lịch xem phòng trọ an toàn.
+                  Trò chuyện trực tiếp, trao đổi hợp đồng thuê, thỏa thuận giá
+                  cả và hẹn lịch xem phòng trọ an toàn.
                 </p>
               </div>
             )}
