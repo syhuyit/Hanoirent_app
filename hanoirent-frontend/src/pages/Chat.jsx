@@ -234,16 +234,16 @@ export default function Chat() {
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 flex flex-col">
-        {/* Main Chat Container */}
-        <div className="flex-1 rounded-3xl bg-zinc-900/90 border border-zinc-800/90 overflow-hidden flex flex-col md:flex-row shadow-2xl shadow-black/80">
+        {/* Main Chat Container - Cố định chiều cao tổng thể */}
+        <div className="h-[calc(100vh-100px)] max-h-[850px] rounded-3xl bg-zinc-900/90 border border-zinc-800/90 overflow-hidden flex flex-col md:flex-row shadow-2xl shadow-black/80">
           {/* SIDEBAR: Danh sách cuộc trò chuyện */}
           <div
-            className={`w-full md:w-80 lg:w-96 border-r border-zinc-800/90 flex flex-col bg-zinc-950/60 ${
+            className={`w-full md:w-80 lg:w-96 border-r border-zinc-800/90 flex flex-col bg-zinc-950/60 min-h-0 ${
               activeRoom ? "hidden md:flex" : "flex"
             }`}
           >
-            {/* Header Sidebar */}
-            <div className="p-4 border-b border-zinc-800/80 space-y-3">
+            {/* Header Sidebar - Cố định không co giãn */}
+            <div className="p-4 border-b border-zinc-800/80 space-y-3 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
                   <MessageCircle className="w-5 h-5 text-blue-400" />
@@ -267,8 +267,8 @@ export default function Chat() {
               </div>
             </div>
 
-            {/* Danh sách phòng */}
-            <div className="flex-1 overflow-y-auto divide-y divide-zinc-800/40">
+            {/* Danh sách phòng - Có thanh cuộn độc lập riêng */}
+            <div className="flex-1 overflow-y-auto divide-y divide-zinc-800/40 min-h-0">
               {loadingRooms ? (
                 <div className="p-4 space-y-3">
                   {[1, 2, 3].map((n) => (
@@ -363,14 +363,14 @@ export default function Chat() {
 
           {/* CHAT WINDOW: Khung chat chính */}
           <div
-            className={`flex-1 flex flex-col bg-zinc-900/40 ${
+            className={`flex-1 flex flex-col bg-zinc-900/40 min-h-0 ${
               !activeRoom ? "hidden md:flex" : "flex"
             }`}
           >
             {activeRoom ? (
               <>
-                {/* Header Chat Window */}
-                <div className="p-4 border-b border-zinc-800/80 bg-zinc-950/40 flex items-center justify-between gap-3">
+                {/* Header Chat Window - Cố định không co giãn */}
+                <div className="p-4 border-b border-zinc-800/80 bg-zinc-950/40 flex items-center justify-between gap-3 flex-shrink-0">
                   <div className="flex items-center gap-3">
                     {/* Nút quay lại trên mobile */}
                     <button
@@ -417,8 +417,8 @@ export default function Chat() {
                   </div>
                 </div>
 
-                {/* Messages Body */}
-                <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
+                {/* Messages Body - Khung chat cuộn riêng biệt */}
+                <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 min-h-0">
                   {loadingMessages ? (
                     <div className="flex items-center justify-center h-full">
                       <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
@@ -505,10 +505,10 @@ export default function Chat() {
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Footer Input */}
+                {/* Footer Input - Cố định ở đáy, không co giãn */}
                 <form
                   onSubmit={handleSendMessage}
-                  className="p-3 sm:p-4 border-t border-zinc-800/80 bg-zinc-950/60 flex items-center gap-2"
+                  className="p-3 sm:p-4 border-t border-zinc-800/80 bg-zinc-950/60 flex items-center gap-2 flex-shrink-0"
                 >
                   <input
                     type="text"
